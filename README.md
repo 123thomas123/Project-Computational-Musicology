@@ -11,4 +11,4 @@ The valence of Drum and Bass was much lower (M = 0.27, SD = 0.19) than the valen
 
 There seems to be some extreme values when looking at the minimum and maximum values within danceability, energy, tempo and valence but they are not confirmed as outliers yet.
 
-The most surprising/interesting finding for me is that the danceability of HipHop is according to Spotify much higher than the danceability for Drum and Bass. I think personally that Drum and Bass is much more danceable so it makes me curious what kind of measurements are used to get to to the variable danceability.
+The most surprising/interesting finding for me is that the danceability of HipHop is according to Spotify much higher than the danceability for Drum and Bass. I think personally that Drum and Bass is much more danceable so it makes me curious what kind of measurements are used to get to the variable danceability.
