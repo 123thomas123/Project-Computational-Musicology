@@ -8,7 +8,17 @@ output:
         theme: flatly
 ---
 
+```{r setup}
+# In order to use these packages, we need to install flexdashboard, plotly, and Cairo.
+library(tidyverse)
+library(plotly)
+library(spotifyr)
+source('Spotify.R')
+library(viridis)
+remotes::install_github('jaburgoyne/compmus')
+library(compmus)
 
+```
 
 ### Introduction: Fleetwood Mac, from a British blues band to a worldwide poprock band, what happenend?
 
@@ -281,6 +291,8 @@ second_time %>%
 This is a chromagram of the outlier to the Energy/Danceability pattern of the song The Second Time. 
 
 I still find it difficult to interpret this chromagram. I think it shows that mostly the song was played in the C but I am not sure.
+
+
 
 
 
