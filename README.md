@@ -1,15 +1,3 @@
----
-title:  'Project Computational Musicology'
-author: 'Thomas Visser'
-date:   'February--March 2020'
-output: 
-    flexdashboard::flex_dashboard:
-        storyboard: true
-        theme: flatly
----
-
-
-
 ### Introduction: Fleetwood Mac, from a British blues band to a worldwide poprock band, what happenend?
 
 **Fleetwood Mac as a Blues Band**
