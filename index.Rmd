@@ -20,6 +20,67 @@ library(compmus)
 
 ```
 
+### What kind of patterns are observed within chroma-based and timbre-based self-similarity matrices of the most Fleetwood Mac popular song?
+
+
+```{r}
+gyow <- get_tidy_audio_analysis('07GvNcU1WdyZJq3XxP0kZa') %>% 
+    compmus_align(bars, segments) %>% 
+    select(bars) %>% unnest(bars) %>% 
+    mutate(
+        pitches = 
+            map(segments, 
+                compmus_summarise, pitches, 
+                method = 'rms', norm = 'euclidean')) %>% 
+    mutate(
+        timbre = 
+            map(segments, 
+                compmus_summarise, timbre, 
+                method = 'rms', norm = 'euclidean'))
+
+gyow %>% 
+    compmus_self_similarity(pitches, 'cosine') %>% 
+    ggplot(
+        aes(
+            x = xstart + xduration / 2, 
+            width = xduration,
+            y = ystart + yduration / 2,
+            height = yduration,
+            fill = d)) + 
+    geom_tile() +
+    coord_fixed() +
+    scale_fill_viridis_c(option = 'A', guide = 'none') +
+    theme_classic() +
+    labs(x = 'Time (s)', y = 'Time (s)')
+
+gyow %>% 
+    compmus_self_similarity(timbre, 'cosine') %>% 
+    ggplot(
+        aes(
+            x = xstart + xduration / 2, 
+            width = xduration,
+            y = ystart + yduration / 2,
+            height = yduration,
+            fill = d)) + 
+    geom_tile() +
+    coord_fixed() +
+    scale_fill_viridis_c(option = 'A', guide = 'none') +
+    theme_classic() +
+    labs(x = 'Time (s)', y = 'Time (s)')
+
+```
+
+***
+
+These graphs show the self-similarity matrices of the most popular Fleetwood Mac song on Spotify: Go Your Own Way (from the Pop/Rock era). The graph on the left is a chroma-based self-similarity matrix and the graph on the right is a timbre-based self-similarity matrix.
+
+The song seems to be divided in a very similar patterned square in the first 140 seconds and after that a different section until the end of the song. In this first square you can see patterns with large black squares, these represent the verses of the song, a slower tempo and more lyrics. You can also see patterns with small black squares in between the large black squares, representing the chorus of the song, a faster tempo and less lyrics.
+
+After the first 140 seconds you can see a little bit of a different section. In this section there is an instrumental bridge with a faster tempo and the chorus is repeated over and over until it fades out. This is easily observable because you can identify little sections with small black suares (just like the ones before) that keep repeating themselves until the end.
+
+It is very interesting to see that a song this popular does not seem to have much tempo switches or different sections within it. It is a very 'symmeterical' song in this sense, which I would assume means that most of us like symmetrical songs over songs that are 'unsymmetrical'.
+
+
 ### Introduction: Fleetwood Mac, from a British blues band to a worldwide poprock band, what happenend?
 
 **Fleetwood Mac as a Blues Band**
@@ -280,7 +341,7 @@ second_time %>%
       fill = value)) + 
   geom_tile() +
   labs(x = 'Time (s)', y = NULL, fill = 'Magnitude') +
-  theme_minimal() + scale_color_viridis(option = "D")
+  theme_minimal() + scale_color_viridis(option = "E")
 
 
 
@@ -290,133 +351,30 @@ second_time %>%
 
 This is a chromagram of the outlier to the Energy/Danceability pattern of the song The Second Time. 
 
-The song was mostly played in the C, G and  but I am not sure.
-
-## Bloed, Zweet en Tranen
-
-The following examples from Andre Hazes's ‘Bloed, Zweet en Tranen’ highlight how to use these functions. Can you choose better combinations of normalisations, distances, and summary statistics?
-
-```{r}
-bzt <- 
-    get_tidy_audio_analysis('5e9TFTbltYBg2xThimr0rU') %>% # change song
-    compmus_align(bars, segments) %>% # if you want to change the range of your part then change bars in three places
-```
-
-
-```{r}
-select(bars) %>% unnest(bars) %>% 
-    mutate( #cimbines pitch information
-        pitches = 
-            map(segments, 
-                compmus_summarise, pitches, 
-                method = 'rms', norm = 'euclidean')) %>% # you can change the method (rms is root mean square) to max for example, it is basically your summary statistic
-     mutate( # combinbes timbre information
-        timbre = 
-            map(segments, 
-                compmus_summarise, timbre, 
-                method = 'mean')) # you can change the method, you did not need a norm in this case.
-```
-
-### Cepstrogram
-
-We can use `compmus_gather_timbre` much like `compmus_gather_chroma` last week to yield a cepstrogram. Try different levels of structure -- Spotify's estimates of beats, bars, or sections -- to see which level is the most meaningful.
-
-```{r}
-bzt %>% 
-    compmus_gather_timbre %>% 
-    ggplot(
-        aes(
-            x = start + duration / 2, 
-            width = duration, 
-            y = basis, 
-            fill = value)) + 
-    geom_tile() +
-    labs(x = 'Time (s)', y = NULL, fill = 'Magnitude') +
-    scale_fill_viridis_c(option = 'E') +
-    theme_classic()
-```
-
-### Self-Similarity Matrices
-
-The function `compmus_self_similarity` is a wrapper around `compmus_long_distance` from last week, for the case where the distances are computed form the same track. Try different distance functions to see what is most useful for this track -- and compare your results with a self-similarity matrix based on chroma.
-
-```{r}
-bzt %>% 
-    compmus_self_similarity(timbre, 'cosine') %>% # cosine is distance measure so you can change this to euclidean for example # you can also change timbre to pitches for a chroma gram.
-    ggplot(
-        aes(
-            x = xstart + xduration / 2, 
-            width = xduration,
-            y = ystart + yduration / 2,
-            height = yduration,
-            fill = d)) + 
-    geom_tile() +
-    coord_fixed() + # always add this line so the x axis and y axis have the same scale so you get a perfect square
-    scale_fill_viridis_c(option = 'E', guide = 'none') +
-    theme_classic() +
-    labs(x = '', y = '')
-```
+The song was mostly played in the C and G keys.
 
 
 
-```{r}
-bluesje <- 
-    get_tidy_audio_analysis('1bElCb3PUzvfpxEPCA6fmY') %>% # change song
-    compmus_align(bars, segments) %>% # if you want to change the range of your part then change bars in three places
-```
 
 
-```{r}
-select(bars) %>% unnest(bars) %>% 
-    mutate( #cimbines pitch information
-        pitches = 
-            map(segments, 
-                compmus_summarise, pitches, 
-                method = 'rms', norm = 'euclidean')) %>% # you can change the method (rms is root mean square) to max for example, it is basically your summary statistic
-     mutate( # combinbes timbre information
-        timbre = 
-            map(segments, 
-                compmus_summarise, timbre, 
-                method = 'mean')) # you can change the method, you did not need a norm in this case.
-```
 
-### Cepstrogram
 
-We can use `compmus_gather_timbre` much like `compmus_gather_chroma` last week to yield a cepstrogram. Try different levels of structure -- Spotify's estimates of beats, bars, or sections -- to see which level is the most meaningful.
 
-```{r}
-bluesje %>% 
-    compmus_gather_timbre %>% 
-    ggplot(
-        aes(
-            x = start + duration / 2, 
-            width = duration, 
-            y = basis, 
-            fill = value)) + 
-    geom_tile() +
-    labs(x = 'Time (s)', y = NULL, fill = 'Magnitude') +
-    scale_fill_viridis_c(option = 'E') +
-    theme_classic()
-```
 
-### Self-Similarity Matrices
 
-The function `compmus_self_similarity` is a wrapper around `compmus_long_distance` from last week, for the case where the distances are computed form the same track. Try different distance functions to see what is most useful for this track -- and compare your results with a self-similarity matrix based on chroma.
 
-```{r}
-bluesje %>% 
-    compmus_self_similarity(timbre, 'cosine') %>% # cosine is distance measure so you can change this to euclidean for example # you can also change timbre to pitches for a chroma gram.
-    ggplot(
-        aes(
-            x = xstart + xduration / 2, 
-            width = xduration,
-            y = ystart + yduration / 2,
-            height = yduration,
-            fill = d)) + 
-    geom_tile() +
-    coord_fixed() + # always add this line so the x axis and y axis have the same scale so you get a perfect square
-    scale_fill_viridis_c(option = 'E', guide = 'none') +
-    theme_classic() +
-    labs(x = '', y = '')
-```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
