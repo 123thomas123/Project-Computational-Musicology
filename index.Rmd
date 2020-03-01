@@ -290,9 +290,133 @@ second_time %>%
 
 This is a chromagram of the outlier to the Energy/Danceability pattern of the song The Second Time. 
 
-I still find it difficult to interpret this chromagram. I think it shows that mostly the song was played in the C but I am not sure.
+The song was mostly played in the C, G and  but I am not sure.
+
+## Bloed, Zweet en Tranen
+
+The following examples from Andre Hazes's ‘Bloed, Zweet en Tranen’ highlight how to use these functions. Can you choose better combinations of normalisations, distances, and summary statistics?
+
+```{r}
+bzt <- 
+    get_tidy_audio_analysis('5e9TFTbltYBg2xThimr0rU') %>% # change song
+    compmus_align(bars, segments) %>% # if you want to change the range of your part then change bars in three places
+```
+
+
+```{r}
+select(bars) %>% unnest(bars) %>% 
+    mutate( #cimbines pitch information
+        pitches = 
+            map(segments, 
+                compmus_summarise, pitches, 
+                method = 'rms', norm = 'euclidean')) %>% # you can change the method (rms is root mean square) to max for example, it is basically your summary statistic
+     mutate( # combinbes timbre information
+        timbre = 
+            map(segments, 
+                compmus_summarise, timbre, 
+                method = 'mean')) # you can change the method, you did not need a norm in this case.
+```
+
+### Cepstrogram
+
+We can use `compmus_gather_timbre` much like `compmus_gather_chroma` last week to yield a cepstrogram. Try different levels of structure -- Spotify's estimates of beats, bars, or sections -- to see which level is the most meaningful.
+
+```{r}
+bzt %>% 
+    compmus_gather_timbre %>% 
+    ggplot(
+        aes(
+            x = start + duration / 2, 
+            width = duration, 
+            y = basis, 
+            fill = value)) + 
+    geom_tile() +
+    labs(x = 'Time (s)', y = NULL, fill = 'Magnitude') +
+    scale_fill_viridis_c(option = 'E') +
+    theme_classic()
+```
+
+### Self-Similarity Matrices
+
+The function `compmus_self_similarity` is a wrapper around `compmus_long_distance` from last week, for the case where the distances are computed form the same track. Try different distance functions to see what is most useful for this track -- and compare your results with a self-similarity matrix based on chroma.
+
+```{r}
+bzt %>% 
+    compmus_self_similarity(timbre, 'cosine') %>% # cosine is distance measure so you can change this to euclidean for example # you can also change timbre to pitches for a chroma gram.
+    ggplot(
+        aes(
+            x = xstart + xduration / 2, 
+            width = xduration,
+            y = ystart + yduration / 2,
+            height = yduration,
+            fill = d)) + 
+    geom_tile() +
+    coord_fixed() + # always add this line so the x axis and y axis have the same scale so you get a perfect square
+    scale_fill_viridis_c(option = 'E', guide = 'none') +
+    theme_classic() +
+    labs(x = '', y = '')
+```
 
 
 
+```{r}
+bluesje <- 
+    get_tidy_audio_analysis('1bElCb3PUzvfpxEPCA6fmY') %>% # change song
+    compmus_align(bars, segments) %>% # if you want to change the range of your part then change bars in three places
+```
 
+
+```{r}
+select(bars) %>% unnest(bars) %>% 
+    mutate( #cimbines pitch information
+        pitches = 
+            map(segments, 
+                compmus_summarise, pitches, 
+                method = 'rms', norm = 'euclidean')) %>% # you can change the method (rms is root mean square) to max for example, it is basically your summary statistic
+     mutate( # combinbes timbre information
+        timbre = 
+            map(segments, 
+                compmus_summarise, timbre, 
+                method = 'mean')) # you can change the method, you did not need a norm in this case.
+```
+
+### Cepstrogram
+
+We can use `compmus_gather_timbre` much like `compmus_gather_chroma` last week to yield a cepstrogram. Try different levels of structure -- Spotify's estimates of beats, bars, or sections -- to see which level is the most meaningful.
+
+```{r}
+bluesje %>% 
+    compmus_gather_timbre %>% 
+    ggplot(
+        aes(
+            x = start + duration / 2, 
+            width = duration, 
+            y = basis, 
+            fill = value)) + 
+    geom_tile() +
+    labs(x = 'Time (s)', y = NULL, fill = 'Magnitude') +
+    scale_fill_viridis_c(option = 'E') +
+    theme_classic()
+```
+
+### Self-Similarity Matrices
+
+The function `compmus_self_similarity` is a wrapper around `compmus_long_distance` from last week, for the case where the distances are computed form the same track. Try different distance functions to see what is most useful for this track -- and compare your results with a self-similarity matrix based on chroma.
+
+```{r}
+bluesje %>% 
+    compmus_self_similarity(timbre, 'cosine') %>% # cosine is distance measure so you can change this to euclidean for example # you can also change timbre to pitches for a chroma gram.
+    ggplot(
+        aes(
+            x = xstart + xduration / 2, 
+            width = xduration,
+            y = ystart + yduration / 2,
+            height = yduration,
+            fill = d)) + 
+    geom_tile() +
+    coord_fixed() + # always add this line so the x axis and y axis have the same scale so you get a perfect square
+    scale_fill_viridis_c(option = 'E', guide = 'none') +
+    theme_classic() +
+    labs(x = '', y = '')
+```
 
