@@ -21,6 +21,58 @@ library(compmus)
 ```
 
 
+### Do the different Fleetwood Mac era's show differences in tempo?
+
+
+```{r}
+coldblacknight <- get_tidy_audio_analysis('7jlsJdutXm9AAT5lKYjjdy')
+
+whatashame <- get_tidy_audio_analysis('5wqtOvdY2hUQOkEMq33k1Y')
+
+dont_stop <- get_tidy_audio_analysis('4bEb3KE4mSKlTFjtWJQBqO')
+```
+
+
+```{r}
+coldblacknight %>% 
+    tempogram(window_size = 8, hop_size = 1, cyclic = TRUE) %>% 
+    ggplot(aes(x = time, y = bpm, fill = power)) + 
+    geom_raster() + 
+    scale_fill_viridis_c(guide = 'none') +
+    labs(x = 'Time (s)', y = 'Tempo (BPM)') +
+    theme_classic()
+
+whatashame %>% 
+    tempogram(window_size = 8, hop_size = 1, cyclic = TRUE) %>% 
+    ggplot(aes(x = time, y = bpm, fill = power)) + 
+    geom_raster() + 
+    scale_fill_viridis_c(guide = 'none') +
+    labs(x = 'Time (s)', y = 'Tempo (BPM)') +
+    theme_classic()
+
+dont_stop %>% 
+    tempogram(window_size = 8, hop_size = 1, cyclic = TRUE) %>% 
+    ggplot(aes(x = time, y = bpm, fill = power)) + 
+    geom_raster() + 
+    scale_fill_viridis_c(guide = 'none') +
+    labs(x = 'Time (s)', y = 'Tempo (BPM)') +
+    theme_classic()
+```
+
+
+***
+
+In these graphs you can see the Fourier-based tempograms of a representative song of all the 3 fleetwood mac era's, these are from left to right: Cold Black Night for the Blues era, What a Shame for the Transitioning era and Don't Stop for the Poprock era. These graphs show the tempo of changes within the songs.
+
+For Cold Black Night you can see the clearest line at about 143 BPM (which is close the tempo for the whole song according to Spotify, namely 135) and you can also see less clear lines and dots around this line. This song is a live recording so that is why you see so many dots and lines around the clearer line, representing little sounds that were in the studio. This song has many small tempo switches within the whole song indicating that the Blues era consits mostly of songs that have many tempo changes, which makes sense when you think about Blues music.
+
+For What a Shame you can see a clear line at about 140 BPM (which is close the tempo for the whole song according to Spotify, namely 138) and you cannot see any other lines. This tempo is very well received by the model. This song has an equal tempo in the whole song indicating that the Transitioning era consits mostly of songs that do not have many tempo changes and a very high tempo (about 140 BPM).
+
+For Don't stop you can see the clearest line at 119 BPM (which is also the tempo for the whole song according to Spotify) and you can also see less clear lines at half that tempo and double that tempo. This song has an equal average tempo in the whole song indicating that the Poprock era consits mostly of songs that do not have many tempo changes and a very average tempo (about 120BPM).
+
+So the Blues era and the Transitioning era have similar tempo's (about 140 BPM), but the Blues era has many tempo changes within the song, while the Transitiong era does not. The Poprock era has a much lower tempo than the other era's and does not have many tempo switches within the song just like the Transitioning era. Each era has some unique elements and also some overlapping elements, which is why Tempo seems to be a very useful tool to distinguish the different Fleetwood Mac era's, while still being able to recognize the same band within each era.
+
+
 ### Chordograms and Keygrams of the most popular Fleetwood Mac song
 
 
@@ -577,57 +629,6 @@ This is a chromagram of the outlier to the Energy/Danceability pattern of the so
 The song was mostly played in the C and G keys.
 
 
-
-### Does the different Fleetwood Mac era's show differences in tempo?
-
-
-```{r}
-coldblacknight <- get_tidy_audio_analysis('7jlsJdutXm9AAT5lKYjjdy')
-
-whatashame <- get_tidy_audio_analysis('5wqtOvdY2hUQOkEMq33k1Y')
-
-dont_stop <- get_tidy_audio_analysis('4bEb3KE4mSKlTFjtWJQBqO')
-```
-
-
-```{r}
-coldblacknight %>% 
-    tempogram(window_size = 8, hop_size = 1, cyclic = TRUE) %>% 
-    ggplot(aes(x = time, y = bpm, fill = power)) + 
-    geom_raster() + 
-    scale_fill_viridis_c(guide = 'none') +
-    labs(x = 'Time (s)', y = 'Tempo (BPM)') +
-    theme_classic()
-
-whatashame %>% 
-    tempogram(window_size = 8, hop_size = 1, cyclic = TRUE) %>% 
-    ggplot(aes(x = time, y = bpm, fill = power)) + 
-    geom_raster() + 
-    scale_fill_viridis_c(guide = 'none') +
-    labs(x = 'Time (s)', y = 'Tempo (BPM)') +
-    theme_classic()
-
-dont_stop %>% 
-    tempogram(window_size = 8, hop_size = 1, cyclic = TRUE) %>% 
-    ggplot(aes(x = time, y = bpm, fill = power)) + 
-    geom_raster() + 
-    scale_fill_viridis_c(guide = 'none') +
-    labs(x = 'Time (s)', y = 'Tempo (BPM)') +
-    theme_classic()
-```
-
-
-***
-
-In these graphs you can see the Fourier-based tempograms of a representative song of all the 3 fleetwood mac era's, these are Cold Black Night for the Blues era, What a Shame for the Transitioning era and Don't Stop for the Poprock era. These graphs show the tempo of changes within the songs.
-
-For Cold Black Night you can see the clearest line at about 143 BPM (which is close the tempo for the whole song according to Spotify, namely 135) and you can also see less clear lines and dots around this line. This song is a live recording so that is why you see so many dots and lines around the clearer line, representing little sounds that were in the studio. This song has many small tempo switches within the whole song indicating that the Blues era consits mostly of songs that have many tempo changes, which makes sense when you think about Blues music.
-
-For What a Shame you can see a clear line at about 140 BPM (which is close the tempo for the whole song according to Spotify, namely 138) and you cannot see any other lines. This tempo is very well received by the model. This song has an equal tempo in the whole song indicating that the Transitioning era consits mostly of songs that do not have many tempo changes and a very high tempo (about 140 BPM).
-
-For Don't stop you can see the clearest line at 119 BPM (which is also the tempo for the whole song according to Spotify) and you can also see less clear lines at half that tempo and double that tempo. This song has an equal average tempo in the whole song indicating that the Poprock era consits mostly of songs that do not have many tempo changes and a very average tempo (about 120BPM).
-
-So the Blues era and the Transitioning era have similar tempo's (about 140 BPM), but the Blues era has many tempo changes within the song, while the Transitiong era does not. The Poprock era has a much lower tempo than the other eras and has not many tempo switches within the song just like the song from the Transitioning era. Tempo seems to be a very useful tool to distinguish the different Fleetwood Mac era's.
 
 
 
