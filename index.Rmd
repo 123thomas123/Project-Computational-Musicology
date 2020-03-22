@@ -17,9 +17,217 @@ source('Spotify.R')
 library(viridis)
 remotes::install_github('jaburgoyne/compmus')
 library(compmus)
+library(tidymodels)
+library(protoclust)
+library(ggdendro)
+library(installr)
+library(heatmaply)
 
 ```
 
+
+### Predicting the different Fleetwood Mac era's Using all features
+
+```{r}
+
+Blues_class <-
+    get_playlist_audio_features(
+        'thomas visser', 
+        '2czumoRYpSJJLHstb8FB2R') %>% 
+    slice(1:50) %>% 
+    add_audio_analysis()
+
+Transitioning_class <-
+    get_playlist_audio_features(
+        'thomas visser', 
+        '05X93o38tBQUwpSlSwpU1O') %>% 
+    slice(1:50) %>% 
+    add_audio_analysis()
+
+Poprock_class <-
+    get_playlist_audio_features(
+        'thomas visser', 
+        '0B1v5hCCBw7dyj0RVt90w0') %>% 
+    slice(1:50) %>% 
+    add_audio_analysis()
+
+#All <-
+   # Blues %>% mutate(genre = "Blues") %>%
+    #bind_rows(Poprock %>% mutate(genre = "Poprock")) %>%
+   # bind_rows(Transitioning %>% mutate(genre = "Transitioning")) 
+
+
+
+```
+
+
+```{r}
+All_class <- 
+    Blues_class %>% mutate(genre = "Blues") %>% 
+    bind_rows(
+        Transitioning_class %>% mutate(genre = "Transitioning"),
+        Poprock_class %>% mutate(genre = "Poprock")) %>% 
+    mutate(genre = factor(genre)) %>% 
+    mutate(
+        segments = 
+            map2(segments, key, compmus_c_transpose)) %>% 
+    mutate(
+        pitches = 
+            map(segments, 
+                compmus_summarise, pitches, 
+                method = 'mean', norm = 'manhattan'),
+        timbre =
+            map(
+                segments,
+                compmus_summarise, timbre,
+                method = 'mean')) %>% 
+    mutate(pitches = map(pitches, compmus_normalise, 'clr')) %>% 
+    mutate_at(vars(pitches, timbre), map, bind_rows) %>% 
+    unnest(cols = c(pitches, timbre))
+```
+
+```{r}
+All_class_class <- 
+    recipe(genre ~ # probably only need to change playlist to playlist name
+               danceability +
+               energy +
+               loudness +
+               speechiness +
+               acousticness +
+               instrumentalness +
+               liveness +
+               valence +
+               tempo +
+               duration +
+               C + `C#|Db` + D + `D#|Eb` +
+               E + `F` + `F#|Gb` + G +
+               `G#|Ab` + A + `A#|Bb` + B +
+               c01 + c02 + c03 + c04 + c05 + c06 +
+               c07 + c08 + c09 + c10 + c11 + c12,
+           data = All_class) %>% 
+    step_center(all_predictors()) %>% # make/use z- scores
+    step_scale(all_predictors()) %>%
+    # step_range(all_predictors()) %>% if you do this than the min is 0 and the max is 1
+    prep(All_class) %>% 
+    juice
+```
+
+
+```{r}
+#Cross-Validation
+All_cv <- All_class_class %>% vfold_cv(5) # breaks up everything, train on random 4/5 and test on 1/5 to see how well the algorithm does. 10 gives more accurate results
+```
+
+
+```{r}
+All_knn <- 
+    nearest_neighbor(mode = 'classification', neighbors = 1) %>% 
+    set_engine('kknn')
+predict_knn <- function(split)
+    fit(All_knn, genre ~ ., data = analysis(split)) %>% 
+    predict(assessment(split), type = 'class') %>%
+    bind_cols(assessment(split))
+```
+
+```{r}
+All_cv %>% 
+    mutate(pred = map(splits, predict_knn)) %>% unnest(pred) %>% 
+    metric_set(accuracy, kap, j_index)(truth = genre, estimate = .pred_class)
+```
+
+
+```{r}
+All_cv %>% 
+    mutate(pred = map(splits, predict_knn)) %>% unnest(pred) %>% 
+    conf_mat(truth = genre, estimate = .pred_class) %>% 
+    autoplot(type = 'mosaic')
+
+
+```
+
+
+***
+
+With the $k$-nearest neighbour classifier all features are used to predict whether a certain song fits in the Blues era, the Transitioning era or the Poprock era of Fleetwood Mac. You can see that this is already a somewhat accurate way of predicting which songs fall into which era.
+
+However, This classifier is very sensitive to the choice of features so we need to select the most distinctive features in order to improve our accuravy in predicting which songs belongs to which era. This is what we are doing by creating a random Forest.
+
+### Detecting the most relevant features with Random Forest
+
+```{r}
+All_forest <- 
+    rand_forest(mode = 'classification') %>% 
+    set_engine('randomForest')
+predict_forest <- function(split)
+    fit(All_forest, genre ~ ., data = analysis(split)) %>% 
+    predict(assessment(split), type = 'class') %>%
+    bind_cols(assessment(split))
+```
+
+
+```{r}
+All_class_class %>% 
+    fit(All_forest, genre ~ ., data = .) %>% 
+    pluck('fit') %>% 
+    randomForest::varImpPlot()
+```
+
+***
+
+By creating a random Forest multiple times, you get the features that show the most distinctive power in deciding which songs belongs to which era. As you can see from this plot, the most distinctive features are c11, loudness, danceability, c06 and c10. Now we have to compute a new model with online these features and see whether the accuracy has increased or not.
+
+### Predicting the different Fleetwood Mac era's Using the most distinctive features
+
+```{r}
+# run the above thing multiple times and see which features are the most important for the prediction.
+predict_knn_reduced <- function(split)
+    fit(
+        All_knn, 
+        genre ~ c11 + loudness + danceability + c06 + c10, 
+        data = analysis(split)) %>% 
+    predict(assessment(split), type = 'class') %>%
+    bind_cols(assessment(split))
+All_cv %>% 
+    mutate(pred = map(splits, predict_knn_reduced)) %>% unnest(pred) %>% 
+    metric_set(accuracy, kap, j_index)(truth = genre, estimate = .pred_class)
+```
+
+
+```{r}
+
+All_cv %>% 
+    mutate(pred = map(splits, predict_knn_reduced)) %>% unnest(pred) %>% 
+    conf_mat(truth = genre, estimate = .pred_class) %>% 
+    autoplot(type = 'mosaic')
+```
+
+***
+
+As you can see, the accuracy of the model has increased. It can now better predict whether a certain song falls within a certain era. This means that we can now make a better plot in showing the differences between the era's of Fleetwood Mac, using these features.
+
+### The new Fleetwood Mac plot of the different era's
+
+```{r}
+ggplotly(All_class %>%
+    ggplot(aes(x = c11, y = loudness, colour = genre, size = danceability, label = track.name)) +
+    geom_point(alpha = 0.8) +
+    scale_color_brewer(type = 'qual', palette = 'Accent') +
+    labs(
+        x = 'Timbre Component 11', 
+        y = 'Loudness', 
+        size = 'Danceability', 
+        colour = 'Era')
+    )
+```
+
+
+***
+
+This graph shows the most distinctive features of the Fleetwood Mac era's. Timbre component 11 is on the x-axis, loudness on the y-axis and danceability as the size of the dots.
+
+The intersting thing about this plot is that you can see a big pile of dots in the middle where the band overlaps musicly in all the era's, but you can also see the differences in the era's. The Blues era scores overall lower on timbre component 11 than the Transitioning and the Poprock era. The Poprock era scores higher in loudness comparative to the transitiong era, while the Blues era has all variaties of loudness. 
+
+An interesting outlier is the song Thoughts on a Grey Day from the Transitioning era, the dot in the lower left corner. This is actually a monaural recorded poem, so not a song. This is the last piece on the album Bare Trees and is delivered by an elderly woman that lived near the Fleetwood Mac's communal home. While it still belongs to the Transitioning era of Fleetwood Mac, it is not really representative at all of the music they made in that era. You might think that it is bad that this dot does not fit well with the model, but actually the fact that the model shows that this song does not fit well into any era, makes this a very accurate model because it is not a song and so it makes sense that it does not fit into any Fleetwood Mac era. 
 
 ### Do the different Fleetwood Mac era's show differences in tempo?
 
@@ -627,6 +835,16 @@ second_time %>%
 This is a chromagram of the outlier to the Energy/Danceability pattern of the song The Second Time. 
 
 The song was mostly played in the C and G keys.
+
+
+
+
+
+
+
+
+
+
 
 
 
