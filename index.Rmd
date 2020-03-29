@@ -1,5 +1,5 @@
 ---
-title:  'Project Computational Musicology'
+title:  'Fleetwood Mac: From a British Blues Band to an International Poprock Band'
 author: 'Thomas Visser'
 date:   'February--March 2020'
 output: 
@@ -19,270 +19,493 @@ remotes::install_github('jaburgoyne/compmus')
 library(compmus)
 library(tidymodels)
 library(protoclust)
-library(ggdendro)
-library(installr)
-library(heatmaply)
+#library(ggdendro)
+#library(installr)
+#library(heatmaply)
 
 ```
 
 
-### Predicting the different Fleetwood Mac era's Using all features
+The Different Eras of Fleetwood Mac {.storyboard}
+=========================
+
+### The History of Fleetwood Mac {data-commentary-width=600}
+
+
+![An image from the Blues era of Fleetwood Mac](images/blues.jpg)
+
+***
+
+
+**Fleetwood Mac as a Blues Band**
+
+Fleetwood Mac is originally a British blues band that came up at the end of the 1960s and beginning of the 1970s. The original band members were Peter Green, Mick Fleetwood, Jeremy Spencer John McVie and later Chistine Perfect and Danny Kirwan.The Blues period lasted from 1967 to 1969, when Peter Green and Jeremy Spencer both left the band due to mental illness. The band began transitioning into a more poprock style from 1970 to 1974 but this potential was not fully reached until the recruitment of Lindsey Buckingham and Stevie Nicks.     
+
+**Fleetwood Mac as a Pop Rock Band**
+
+Fleetwood Mac established itself as a poprock band in 1975 when they recruited Lindsey Buckingham and Stevie Nicks. The first album they created together, titled Fleetwood Mac, was a breakthrough for the band. They became popular worldwide and got mainstream media fame. However, after this album all romantic relationships within the band came to an end. This caused major tensions in the band but thankfully all these tensions came together in the creative drug infused and alcoholic miracle album Rumours. This was basically an album with only hits, giving the band even more succes across the globe. Rumours has become number eight on the list of best-selling albums of all time with 40 million copies sold. After this album, a few other succeful albums were created, but none came close to the succes of the Rumours album. The tensions in the band made it so people were leaving and joining the band every couple of years and not as many music was created as in the early blues days.
+
+**What is the Difference in Music?**
+
+Fleetwood Mac is a band that has had such an exciting musical history and has made so many huge hits that it's interesting to compare all the Fleetwood Mac albums to each other using the Spotify API. What were the differences between these albums? How did the Blues era compare to the poprock era of Fleetwood Mac? And was there a difference in music in the transitioning era?
+
+### A Comparison of the Fleetwood Mac Eras Using Spotify API {data-commentary-width=600}
+
+![Spotify](images/spotify.jpg)
+
+***
+
+**The Research Project**
+
+For this project I created three eras of albums that I want to compare, a Blues era containing the albums Fleetwood Mac (Peter Green's Fleetwood Mac), Mr.Wonderful and Then Play On, a Transitioning era containing the albums Kiln House, Future Games, Bare Trees, Penguin, Mystery to Me and Heroes are Hard to Find and a poprock era containing the albums Fleetwood Mac (Stevie Nicks/Lindsey Buckingham's Fleetwood Mac), Rumours, Tusk, Mirage, Tango in the Night, Behind the Mask, Time and Say You Will. These are in total all the studio albums from Fleetwood Mac (According to Wikipedia). I looked at five features from the Spotify API: danceability, valence, tempo, energy and instrumentalness. The goal of this project is to see whether Spotify recognizes any musical differences between the above specified Fleetwood Mac eras. Before we look at these differences, I included a short explanation of the features I looked at below, so you can see what Spotify means with these features. 
+
+**Danceability**
+
+Danceability is a measure of how suitable a track is for dancing, based on the combination of some musical elements including tempo, rhythm stability, beat strength and overall regularity. Danceability is measured on a scale from 0 to 1, where a zero stands for least danceable and a one stands for most danceable.
+
+**Valence**
+
+Valence is a measure that describes the musical positiveness conveyed by a track. Tracks with a high valence are generally more happy, cheerful and euphoric and tracks with a low valence are generally more sad, depressed and angry.
+Valence is measured on a scale from 0 to 1, where a zero stands for most negative (lowest valence) and a one stands for most positive (highest valence).
+
+**Tempo**
+
+Tempo is the estimated pace of a track in beats per minute (BPM). This is a measure that can be interpreted as how fast or slow a song is. Tempo has a scale that ranges from about 50 (BPM) to about 220 (BPM), where 50 (BPM) stands for a slow tempo/song and 220 (BPM) stands for a very high tempo/song.
+
+**Energy**
+
+Energy is a measure of intensity and activity. High energetic tracks are generally loud and noisy and low energetic tracks are generally quiet. Energy is measured on a scale from 0 to 1, where a zero stands for least energetic and a one stands for most energetic.
+
+**Instrumentalness**
+
+Instrumentalness is a measure of **non ** vocalness and the spoken word in a song. In this context are *ooh* and *aah * sounds considered as vocal. So a track with a high instrumentalness has not many vocals in the song and a track with a low instrumentalness has many vocals in the song. Instrumentalness is measured on a scale from 0 to 1, where a zero stands for most vocal and a one stands for least vocal (most instrumental).
+
+### First Glance at Spotify API Track-level features Danceability, Valence, Tempo, Energy and Instrumentallness. What are striking first findings in means and standard deviations? {data-commentary-width=600}
 
 ```{r}
 
-Blues_class <-
-    get_playlist_audio_features(
-        'thomas visser', 
-        '2czumoRYpSJJLHstb8FB2R') %>% 
-    slice(1:50) %>% 
-    add_audio_analysis()
+dance = c(0.52, 0.53, 0.60)
+valence = c(0.55, 0.65, 0.64)
+Tempo = c(144.05/150, 122.9/150, 124.47/150)
+Energy = c(0.4, 0.48, 0.61)
+Instrumental = c(0.17, 0.24, 0.06)
 
-Transitioning_class <-
-    get_playlist_audio_features(
-        'thomas visser', 
-        '05X93o38tBQUwpSlSwpU1O') %>% 
-    slice(1:50) %>% 
-    add_audio_analysis()
+#averages <- data.frame(c(dance, valence, Tempo, Energy, Instrumental))
+#averages
 
-Poprock_class <-
-    get_playlist_audio_features(
-        'thomas visser', 
-        '0B1v5hCCBw7dyj0RVt90w0') %>% 
-    slice(1:50) %>% 
-    add_audio_analysis()
+x = dance
+y = c('Blues', 'Transitioning', 'Poprock')
+par(xpd=FALSE)
+plot(x, cex= 0.001, xlab = 'Era', ylab = 'Average', bty = 'n', main = 'Differences in Means', col = 'red', ylim = c(0,1), xlim = c(1,3.7), lty = 2, xaxt='n')
+lines(valence, lwd = 2, col = 'blue')
+lines(Tempo, lwd = 2, col = 'purple')
+lines(Energy, lwd = 2, col = 'yellow')
+lines(Instrumental,lwd = 2, col = 'green')
+lines(dance,lwd = 2, col = 'red')
+points(dance, pch = 19 ,col = 'black')
+points(valence, pch = 19 ,col = 'black')
+points(Tempo, pch = 19 ,col = 'black')
+points(Energy, pch = 19 ,col = 'black')
+points(Instrumental, pch = 19 ,col = 'black')
+text(x= 1.05, y = 0, label = 'Blues')
+text(x= 2.0, y = 0, "Transitioning")
+text(x= 3.0, y = 0, "Poprock")
+par(xpd=TRUE)
+legend(2.8,0.55, c('Danceability', 'Valence','Tempo/150', 'Energy', 'Instrumentalness'), col = c('red', 'blue','purple', 'yellow', 'green'), lty=1)
 
-#All <-
-   # Blues %>% mutate(genre = "Blues") %>%
-    #bind_rows(Poprock %>% mutate(genre = "Poprock")) %>%
-   # bind_rows(Transitioning %>% mutate(genre = "Transitioning")) 
 
+```
+
+
+***
+
+**Striking Features**
+
+This graph shows the change in average from the Blues era to the Poprock era. The features danceability, valence, tempo, energy and instrumentalness are identified with specific colours and the average of each era is indicated with a black dot. Below is first a summary of the most striking findings from this graph. After that, the specific changes of all the features are individually described in detail.
+
+The features Danceability, Tempo and Energy all seem to increase from the Blues era to the Poprock era. This makes semantical sense because Blues is generally less danceable, has a slower pace and a lower energy compared to Poprock. Valence increased from the Blues era to the Transitional era and then stayed the same in the Poprock era. Blues music sounds generally more sad/negative than the tracks in the other two eras of Fleetwood Mac so this finding makes sense. Also, when listening to the Transitional and the Poprock era, I do not hear much difference in the overall positiveness of the songs so the valence having the same value for these eras makes sense. 
+
+Instrumentalness has a very interesting result, with the highest instrumentalness (lowest vocalness) in the transitional period and the lowest instrumentalness in the Poprock era. This seems likely to be explained by the fact that both singers Peter Green and Jeremy Spencer left the band at this time so there was not a leadsinger established. The bandmember Danny Kirwan was forced more or less to be the frontman of the band but he was more of a guitar player at heart. This explains the fact that there were less vocals in the transitional period. In the Poprrock era Stevie Nicks and Lindsey Buckingham joined the band and they were both singers and lyrically talented, which is why the instrumentalness is almost zero in this era, indicating a high amount of vocalness within the songs.
+
+<span style="color: red;">**Danceability**</span> 
+
+When looking at danceability you can see a small steady increase with a lower danceability of the Blues era (M = 0.52, SD = 0.12), a higher danceability of the transitioning era (M = 0.53, SD = 0.10) and the highest danceability of the pop/rock era (M = 0.60, SD = 0.11). The average danceability across all albums was 0.56 (SD = 0.12).
+
+<span style="color: blue;">**Valence**</span> 
+
+When looking at valence you see an increase in the beginning with a lower valence of the Blues era (M = 0.55, SD = 0.26) and a high valence of the transitioning era (M = 0.65, SD = 0.24). Then the valence stays more or less the same in the pop/rock era (M = 0.64, SD = 0.23) The average valence across all albums was 0.62 (SD = 0.25).
+
+<span style="color: purple;">**Tempo**</span> 
+
+Tempo is divided by 150 in this graph to be able to show all features inside one graph. When looking at tempo you can see a steady increase with a lower tempo in the Blues era (M = 114.05, SD = 29.79), a higher tempo in the transitioning era (M = 122.90, SD = 29) and the highest tempo in the pop/rock era (M = 124.47, SD = 24.64). The average danceability across all albums was 121.62 (SD = 27.30).
+
+<span style="color: yellow;">**Energy**</span> 
+
+When looking at energy you see a small increase in the beginning with a lower energy of the Blues era (M = 0.40, SD = 0.21) and a bit higher energy of the transitioning era (M = 0.48, SD = 0.19). In the pop/rock era the energy has increased by a lot and the highest average value for energy is found (M = 0.61, SD = 0.21). The average energy across all albums was 0.53 (SD = 0.22).
+
+<span style="color: green;">**Instrumentalness**</span> 
+
+When looking at the Instrumentalness you can see a bell shaped curve with a lower Instrumentalness in the Blues era (M = 0.17, SD = 0.32) a higher Instrumentalness in the transitioning era (M = 0.24, SD = 0.33) and the lowest Instrumentalness in the pop/rock era (M = 0.06, SD = 0.16). The average Instrumentalness across all albums was 0.13 (SD = 0.27).
+
+
+### Fleetwood Mac Moves From Low Energy Non-danceable Tracks to High Energy Danceable Tracks {data-commentary-width=600}
+
+```{r}
+
+# Creating all the wanted variables for comparisons
+
+fleetwood_mac_all_albums <- get_playlist_audio_features('thomas visser', '06uRyAVYL3GHFF02q2QtjC')
+
+fleetwood_mac_album1 <- fleetwood_mac_all_albums[which(fleetwood_mac_all_albums$track.album.name == 'Fleetwood Mac'),]
+Mr.wonderful <- fleetwood_mac_all_albums[which(fleetwood_mac_all_albums$track.album.name == 'Mr. Wonderful'),]
+then_play_on <- fleetwood_mac_all_albums[which(fleetwood_mac_all_albums$track.album.name == 'Then Play On (2013 Remaster; Expanded Edition)'),]
+Kiln_House <- fleetwood_mac_all_albums[which(fleetwood_mac_all_albums$track.album.name == 'Kiln House'),]
+Future_games <- fleetwood_mac_all_albums[which(fleetwood_mac_all_albums$track.album.name == 'Future Games'),]
+Bare_trees <- fleetwood_mac_all_albums[which(fleetwood_mac_all_albums$track.album.name == 'Bare Trees'),]
+Penguin <- fleetwood_mac_all_albums[which(fleetwood_mac_all_albums$track.album.name == 'Penguin'),]
+Mystery_to_me <- fleetwood_mac_all_albums[which(fleetwood_mac_all_albums$track.album.name == 'Mystery to Me'),]
+Heroes_are_hard_to_find <- fleetwood_mac_all_albums[which(fleetwood_mac_all_albums$track.album.name == 'Heroes Are Hard to Find'),]
+fleetwood_mac_album2 <- fleetwood_mac_all_albums[which(fleetwood_mac_all_albums$track.album.name == 'Fleetwood Mac (2017 Remaster)'),]
+rumours <- fleetwood_mac_all_albums[which(fleetwood_mac_all_albums$track.album.name == 'Rumours'),]
+Tusk <- fleetwood_mac_all_albums[which(fleetwood_mac_all_albums$track.album.name == 'Tusk (2015 Remaster)'),]
+Mirage <- fleetwood_mac_all_albums[which(fleetwood_mac_all_albums$track.album.name == 'Mirage (2016 Remaster)'),]
+Tango_in_the_night <- fleetwood_mac_all_albums[which(fleetwood_mac_all_albums$track.album.name == 'Tango in the Night (2017 Remaster)'),]
+Behind_the_mask <- fleetwood_mac_all_albums[which(fleetwood_mac_all_albums$track.album.name == 'Behind the Mask'),]
+Time <- fleetwood_mac_all_albums[which(fleetwood_mac_all_albums$track.album.name == 'Time'),]
+Say_you_will <- fleetwood_mac_all_albums[which(fleetwood_mac_all_albums$track.album.name == 'Say You Will'),]
+
+
+Blues_era <- fleetwood_mac_album1 %>% bind_rows(Mr.wonderful, then_play_on)
+Transitioning_era <- Kiln_House %>% bind_rows(Future_games, Bare_trees, Penguin, Mystery_to_me, Heroes_are_hard_to_find)  
+Pop_rock_era <- fleetwood_mac_album2 %>% bind_rows(rumours, Tusk, Mirage, Tango_in_the_night, Behind_the_mask, Time, Say_you_will)
+# Rumours    
+
+Fleetwood_all <- Blues_era %>% mutate(era = "Blues era") %>% bind_rows(Transitioning_era %>% mutate(era = "Transitioning era")) %>% bind_rows(Pop_rock_era %>% mutate(era = "Pop/Rock era"))
+
+#fleetwood_mac_all_albums$era <- rbind('Blues era' = fleetwood_mac_all_albums[1:53,], 'Transitioning era' = #fleetwood_mac_all_albums[54:113,], 'Pop rock_era' = fleetwood_mac_all_albums[114:227,])
+
+mean_dans <- fleetwood_mac_all_albums %>% summarise(M = mean(danceability), SD = sd(danceability))
+mean_val <- fleetwood_mac_all_albums %>% summarise(M = mean(valence), SD = sd(valence))
+mean_tempo <- fleetwood_mac_all_albums %>% summarise(M = mean(tempo), SD = sd(tempo))
+mean_energy <- fleetwood_mac_all_albums %>% summarise(M = mean(energy), SD = sd(energy))
+mean_instru <- fleetwood_mac_all_albums %>% summarise(M = mean(instrumentalness), SD = sd(instrumentalness))
 
 
 ```
 
 
 ```{r}
-All_class <- 
-    Blues_class %>% mutate(genre = "Blues") %>% 
-    bind_rows(
-        Transitioning_class %>% mutate(genre = "Transitioning"),
-        Poprock_class %>% mutate(genre = "Poprock")) %>% 
-    mutate(genre = factor(genre)) %>% 
-    mutate(
-        segments = 
-            map2(segments, key, compmus_c_transpose)) %>% 
+
+
+Fleet <-
+  Fleetwood_all %>% # Start with all albums
+  ggplot(                      # Set up the plot.
+    aes(
+      x = danceability,
+      y = energy,
+      size = valence,
+      colour = era,
+      label = track.name   # Labels will be interactively visible.
+    )
+  ) +
+  geom_point() +               # Scatter plot.
+  geom_rug(size = 0.1) +       # Add 'fringes' to show data distribution.
+  #facet_wrap(~ era) +          # Separate charts per playlist.
+  scale_x_continuous(          # Fine-tune the x axis.
+    limits = c(0, 1),
+    breaks = c(0, 0.50, 1),  # Use grid-lines for quadrants only.
+    minor_breaks = NULL      # Remove 'minor' grid-lines.
+  ) +
+  scale_y_continuous(          # Fine-tune the y axis in the same way.
+    limits = c(0, 1),
+    breaks = c(0, 0.50, 1),
+    minor_breaks = NULL
+  ) +
+  scale_colour_brewer(         # Use the Color Brewer to choose a palette.
+    type = "qual",           # Qualitative set.
+    palette = "Paired"       # Name of the palette is 'Paired'.
+  ) +
+  scale_size_continuous(       # Fine-tune the sizes of each point.
+    trans = "exp",           # Use an exp transformation to emphasise loud.
+    guide = "none"           # Remove the legend for size.
+  ) +
+  theme_light() +              # Use a simpler them.
+  labs(                        # Make the titles nice.
+    x = "Danceability",
+    y = "Energy",
+    colour = "",
+    size = "Valence"
+  ) + scale_color_viridis(discrete = T, option = "D")
+
+
+ggplotly(na.omit(Fleet))
+
+
+
+#ggplot(fleetwood_mac_all_albums, aes(x = track.album.release_date, y = valence, color = track.popularity)) + geom_point()
+#ggplot(fleetwood_mac_all_albums, aes(x = track.popularity, y = danceability, color = track.album.name)) + geom_boxplot()
+
+# color = track.album.name facet_wrap(~track.album.name)
+
+# fleetwood_mac_all_albums$track.album.release_date <- as.Date(fleetwood_mac_all_albums$track.album.release_date)
+
+
+```
+
+***
+
+This graph contains information about the Danceability, Energy and Valence of all songs of the Fleetwood Mac studio albums. It shows at first glance the important differences between the Fleewood Mac eras. These eras and their colours are shown on the right side of the graph. The size of the dot represents the overall valence (positivity) of that particalur song. You can hover over songs to get some extra information about them.    
+
+Fleetwood Mac started out as a band with mostly songs that were not that danceable and low energy, which really illustrates the Blues era. In the Transitional period you see the yellow dots moving more towards higher energy and higher danceability, while still making slow low energy songs here and there. They are trying to find new sounds but they are not there yet. The Green dots really showcase how Fleetwood Mac has changed in the Poprock era. Most songs are very high energy and the danceability is also considerably higher. An outlier to this pattern seems to be the song The Second Time (green dot leftside below).
+
+As you can see the Blues era has mostly small dots, which are more sad/negative sounds in their songs. The Transitional and Poprock era have mostly big dots, meaning the sounds are a lot more positive which is probably also why they are more danceable and have higher energy. 
+
+You can clearly see some differences within features in the different Fleetwood Mac eras, but there also seems to be a lot of overlap between eras. We try to look closer at some features of their music to look for more differences between eras.
+
+
+Looking Within the Music {.storyboard}
+==============================================
+ 
+### Chroma Based Differences and Timbre Based Differences between the Most Popular Fleetwood Mac Songs {data-commentary-width=350}
+
+```{r, fig.width=5, fig.height=5}
+layout(matrix(c(1:6),2,3))
+
+ltb <- get_tidy_audio_analysis('5zdVcGENQQ5pXTXxFp9oCZ') %>% 
+    compmus_align(bars, segments) %>% 
+    select(bars) %>% unnest(bars) %>% 
     mutate(
         pitches = 
             map(segments, 
                 compmus_summarise, pitches, 
-                method = 'mean', norm = 'manhattan'),
-        timbre =
-            map(
-                segments,
-                compmus_summarise, timbre,
-                method = 'mean')) %>% 
-    mutate(pitches = map(pitches, compmus_normalise, 'clr')) %>% 
-    mutate_at(vars(pitches, timbre), map, bind_rows) %>% 
-    unnest(cols = c(pitches, timbre))
+                method = 'rms', norm = 'euclidean')) %>% 
+    mutate(
+        timbre = 
+            map(segments, 
+                compmus_summarise, timbre, 
+                method = 'rms', norm = 'euclidean'))
+ltb %>% 
+    compmus_self_similarity(pitches, 'cosine') %>% 
+    ggplot(
+        aes(
+            x = xstart + xduration / 2, 
+            width = xduration,
+            y = ystart + yduration / 2,
+            height = yduration,
+            fill = d)) + 
+    geom_tile() +
+    coord_fixed() +
+    scale_fill_viridis_c(option = 'A', guide = 'none') +
+    theme_classic() +
+    labs(x = 'Time (s)', y = 'Time (s)') + ggtitle("Love That Burns")
+  
+  
+
+hypno <- get_tidy_audio_analysis('1cHCG42MxckrXNFqyF8Uhr') %>% 
+    compmus_align(bars, segments) %>% 
+    select(bars) %>% unnest(bars) %>% 
+    mutate(
+        pitches = 
+            map(segments, 
+                compmus_summarise, pitches, 
+                method = 'rms', norm = 'euclidean')) %>% 
+    mutate(
+        timbre = 
+            map(segments, 
+                compmus_summarise, timbre, 
+                method = 'rms', norm = 'euclidean'))
+hypno %>% 
+    compmus_self_similarity(pitches, 'cosine') %>% 
+    ggplot(
+        aes(
+            x = xstart + xduration / 2, 
+            width = xduration,
+            y = ystart + yduration / 2,
+            height = yduration,
+            fill = d)) + 
+    geom_tile() +
+    coord_fixed() +
+    scale_fill_viridis_c(option = 'A', guide = 'none') +
+    theme_classic() +
+    labs(x = 'Time (s)', y = 'Time (s)') + ggtitle("Hypnotized")
+
+gyow <- get_tidy_audio_analysis('07GvNcU1WdyZJq3XxP0kZa') %>% 
+    compmus_align(bars, segments) %>% 
+    select(bars) %>% unnest(bars) %>% 
+    mutate(
+        pitches = 
+            map(segments, 
+                compmus_summarise, pitches, 
+                method = 'rms', norm = 'euclidean')) %>% 
+    mutate(
+        timbre = 
+            map(segments, 
+                compmus_summarise, timbre, 
+                method = 'rms', norm = 'euclidean'))
+
+gyow %>% 
+    compmus_self_similarity(pitches, 'cosine') %>% 
+    ggplot(
+        aes(
+            x = xstart + xduration / 2, 
+            width = xduration,
+            y = ystart + yduration / 2,
+            height = yduration,
+            fill = d)) + 
+    geom_tile() +
+    coord_fixed() +
+    scale_fill_viridis_c(option = 'A', guide = 'none') +
+    theme_classic() +
+    labs(x = 'Time (s)', y = 'Time (s)') + ggtitle("Go Your Own Way")
+
+
+ltb %>% 
+    compmus_self_similarity(timbre, 'cosine') %>% 
+    ggplot(
+        aes(
+            x = xstart + xduration / 2, 
+            width = xduration,
+            y = ystart + yduration / 2,
+            height = yduration,
+            fill = d)) + 
+    geom_tile() +
+    coord_fixed() +
+    scale_fill_viridis_c(option = 'A', guide = 'none') +
+    theme_classic() +
+    labs(x = 'Time (s)', y = 'Time (s)') +  ggtitle("Love That Burns")
+
+hypno %>% 
+    compmus_self_similarity(timbre, 'cosine') %>% 
+    ggplot(
+        aes(
+            x = xstart + xduration / 2, 
+            width = xduration,
+            y = ystart + yduration / 2,
+            height = yduration,
+            fill = d)) + 
+    geom_tile() +
+    coord_fixed() +
+    scale_fill_viridis_c(option = 'A', guide = 'none') +
+    theme_classic() +
+    labs(x = 'Time (s)', y = 'Time (s)') + ggtitle("Hypnotized")
+
+
+gyow %>% 
+    compmus_self_similarity(timbre, 'cosine') %>% 
+    ggplot(
+        aes(
+            x = xstart + xduration / 2, 
+            width = xduration,
+            y = ystart + yduration / 2,
+            height = yduration,
+            fill = d)) + 
+    geom_tile() +
+    coord_fixed() +
+    scale_fill_viridis_c(option = 'A', guide = 'none') +
+    theme_classic() +
+    labs(x = 'Time (s)', y = 'Time (s)') + ggtitle("Go Your Own Way")
+
+  
 ```
-
-```{r}
-All_class_class <- 
-    recipe(genre ~ # probably only need to change playlist to playlist name
-               danceability +
-               energy +
-               loudness +
-               speechiness +
-               acousticness +
-               instrumentalness +
-               liveness +
-               valence +
-               tempo +
-               duration +
-               C + `C#|Db` + D + `D#|Eb` +
-               E + `F` + `F#|Gb` + G +
-               `G#|Ab` + A + `A#|Bb` + B +
-               c01 + c02 + c03 + c04 + c05 + c06 +
-               c07 + c08 + c09 + c10 + c11 + c12,
-           data = All_class) %>% 
-    step_center(all_predictors()) %>% # make/use z- scores
-    step_scale(all_predictors()) %>%
-    # step_range(all_predictors()) %>% if you do this than the min is 0 and the max is 1
-    prep(All_class) %>% 
-    juice
-```
-
-
-```{r}
-#Cross-Validation
-All_cv <- All_class_class %>% vfold_cv(5) # breaks up everything, train on random 4/5 and test on 1/5 to see how well the algorithm does. 10 gives more accurate results
-```
-
-
-```{r}
-All_knn <- 
-    nearest_neighbor(mode = 'classification', neighbors = 1) %>% 
-    set_engine('kknn')
-predict_knn <- function(split)
-    fit(All_knn, genre ~ ., data = analysis(split)) %>% 
-    predict(assessment(split), type = 'class') %>%
-    bind_cols(assessment(split))
-```
-
-```{r}
-All_cv %>% 
-    mutate(pred = map(splits, predict_knn)) %>% unnest(pred) %>% 
-    metric_set(accuracy, kap, j_index)(truth = genre, estimate = .pred_class)
-```
-
-
-```{r}
-All_cv %>% 
-    mutate(pred = map(splits, predict_knn)) %>% unnest(pred) %>% 
-    conf_mat(truth = genre, estimate = .pred_class) %>% 
-    autoplot(type = 'mosaic')
-
-
-```
-
 
 ***
 
-With the $k$-nearest neighbour classifier all features are used to predict whether a certain song fits in the Blues era, the Transitioning era or the Poprock era of Fleetwood Mac. You can see that this is already a somewhat accurate way of predicting which songs fall into which era.
+**Differences within Songs**
 
-However, This classifier is very sensitive to the choice of features so we need to select the most distinctive features in order to improve our accuravy in predicting which songs belongs to which era. This is what we are doing by creating a random Forest.
+These graphs show the self-similarity matrices of the most popular Fleetwood Mac songs from their respective era: Love That burns for the Blues era, Hypnotized for the Transitioning era and Go Your Own Way for the Poprock era. The graphs on top are chroma-based self-similarity matrices and the graphs on the bottom are timbre-based self-similarity matrices.
 
-### Detecting the most relevant features with Random Forest
+In the chroma-based self-similarity matrix of Love that Burns you can see a beautiful chessboard pattern, meaning that the song has many similar pitches within itself. There are many windows within the song and all the windows are of similar structure, which means that the pitches of the song are very repetative within the song. A different structure is seen when looking at the timbre-based self-similarity. This has many different patterns, which shows that even though the song is very similar in pitch, it is very different in timbre.
 
-```{r}
-All_forest <- 
-    rand_forest(mode = 'classification') %>% 
-    set_engine('randomForest')
-predict_forest <- function(split)
-    fit(All_forest, genre ~ ., data = analysis(split)) %>% 
-    predict(assessment(split), type = 'class') %>%
-    bind_cols(assessment(split))
-```
+In the chroma-based self-similarity matrix of Hypnotized you can see similar bits in pitch when you look closely, but it is a lot less clear than the matrix of Love that Burns. You can see very light orange stripes at 120, 200 and 270 seconds at which vocals are overlapping, which is more clearly captured by the timbre-based self-similarity matrix than the chroma-based self-similarity matrix. Overall are there not much differences in self similarity matrices of this song.
+
+In the chroma-based self-similarity matrix of Go Your Own Way, the matrix seems to be divided in a very similar patterned square in the first 140 seconds and after that a different section until the end of the song. In this first square you can see patterns with large black squares, these represent the verses of the song, a slower pace and more lyrics. You can also see patterns with small black squares in between the large black squares, representing the chorus of the song, a faster pace and less lyrics. After the first 140 seconds you can see a little bit of a different section. In this section there is an instrumental bridge with a faster pace and the chorus is repeated over and over until it fades out. This is easily observable because you can identify little sections with small black squares (just like the ones before) that keep repeating themselves until the end. There are not much differences in pitch and timbre within this song.
+
+**Differences in Eras**
+
+It is very interesting to see that these popular songs all seem to have very similar sections within the songs and not seem to have much switches in pace in the song. However, you can notice differences between them. The song from the Blues era shows a song with many similarities in pitch within itself, which makes sense for blues music. The song from the Transitioning era shows the least similarities within itself, indicating that there is much experimentation within the song to figure out what the new style of the band should be. The song from the Poprock era shows a very poppy structure in that the song is very similar until the bridge and then repeats its chorus until the end. It is interesting to see how such popular songs can be so 'symmeterical' in a sense.
 
 
-```{r}
-All_class_class %>% 
-    fit(All_forest, genre ~ ., data = .) %>% 
-    pluck('fit') %>% 
-    randomForest::varImpPlot()
+### Chromagrams of the Popular Fleetwood Mac Songs Show Different Patterns in their Uses of Chords {data-commentary-width=600}
+
+
+```{r, fig.width=10, fig.height=4}
+layout(matrix(c(1:3),1,3))
+
+ltb_chroma <- 
+  get_tidy_audio_analysis('5zdVcGENQQ5pXTXxFp9oCZ') %>% 
+  select(segments) %>% unnest(segments) %>% 
+  select(start, duration, pitches)
+
+hypno_chroma <- 
+  get_tidy_audio_analysis('1cHCG42MxckrXNFqyF8Uhr') %>% 
+  select(segments) %>% unnest(segments) %>% 
+  select(start, duration, pitches)
+
+gyow_chroma <- 
+  get_tidy_audio_analysis('07GvNcU1WdyZJq3XxP0kZa') %>% 
+  select(segments) %>% unnest(segments) %>% 
+  select(start, duration, pitches)
+
+ltb_chroma %>% 
+  mutate(pitches = map(pitches, compmus_normalise, 'chebyshev')) %>% 
+  compmus_gather_chroma %>% 
+  ggplot(
+    aes(
+      x = start + duration / 2, 
+      width = duration, 
+      y = pitch_class, 
+      fill = value)) + 
+  geom_tile() +
+  labs(x = 'Time (s)', y = NULL, fill = 'Magnitude') +
+  theme_minimal() + scale_color_viridis(option = "E")  + ggtitle("Love That Burns")
+
+hypno_chroma %>% 
+  mutate(pitches = map(pitches, compmus_normalise, 'chebyshev')) %>% 
+  compmus_gather_chroma %>% 
+  ggplot(
+    aes(
+      x = start + duration / 2, 
+      width = duration, 
+      y = pitch_class, 
+      fill = value)) + 
+  geom_tile() +
+  labs(x = 'Time (s)', y = NULL, fill = 'Magnitude') +
+  theme_minimal() + scale_color_viridis(option = "E") + ggtitle("Hypnotized")
+
+gyow_chroma %>% 
+  mutate(pitches = map(pitches, compmus_normalise, 'chebyshev')) %>% 
+  compmus_gather_chroma %>% 
+  ggplot(
+    aes(
+      x = start + duration / 2, 
+      width = duration, 
+      y = pitch_class, 
+      fill = value)) + 
+  geom_tile() +
+  labs(x = 'Time (s)', y = NULL, fill = 'Magnitude') +
+  theme_minimal() + scale_color_viridis(option = "E") + ggtitle("Go Your Own Way")
+
+
 ```
 
 ***
 
-By creating a random Forest multiple times, you get the features that show the most distinctive power in deciding which songs belongs to which era. As you can see from this plot, the most distinctive features are c11, loudness, danceability, c06 and c10. Now we have to compute a new model with online these features and see whether the accuracy has increased or not.
+**Differences within Songs**
 
-### Predicting the different Fleetwood Mac era's Using the most distinctive features
+Next to broader pitches and timbre elements, we can also zoom in more to the pitches within these popular songs and see which chords are played most. Again, Love that Burns is a popular song from the Blues era, Hypnotized is a popular song from the transitioning era and Go Your Own Way is a popular song from the Poprock era.
 
-```{r}
-# run the above thing multiple times and see which features are the most important for the prediction.
-predict_knn_reduced <- function(split)
-    fit(
-        All_knn, 
-        genre ~ c11 + loudness + danceability + c06 + c10, 
-        data = analysis(split)) %>% 
-    predict(assessment(split), type = 'class') %>%
-    bind_cols(assessment(split))
-All_cv %>% 
-    mutate(pred = map(splits, predict_knn_reduced)) %>% unnest(pred) %>% 
-    metric_set(accuracy, kap, j_index)(truth = genre, estimate = .pred_class)
-```
+For all chromagrams it is difficult to see what information they exactly convey, but I will do my best to analyse them. In Love that Burns you can see that it is mostly played in A or G sharp. In the other parts of the songs it seems like either the D or the C sharp is played. Also a little bit of E or D sharp is played in sections between the chorus and verse.
+
+In Hypnotized there is not really any clear pattern in chords to be seen. This makes sense because the chroma-based self-similarity matrix of this song was also very hard to uncover. It is however probable that the C, D sharp and G chords played a role within this song and that the B, A sharp, A, D and C sharp did not play that big of a role.
+
+Within Go Your Own Way you can see a sort of clear pattern for the first 140 seconds of the song (jas as in the chroma-based self-similarity matrix), in which the A sharp, F and C chords are mostly played. After that it is tough to say, but either, the C, C sharp or D chord gets some play time.
+
+**Differences in Eras**
+
+Even though it is difficult to see clearly within these chromograms, you can still discover some differences in chords between these eras. So is the F chord not really played in the Blues era, introduced a bit more within the Transitioning era and used a lot in the Poprock era. A similar pattern is observed with the A chord but then the other way around, used a lot within the Blues era but falls off in the Poprock era.
 
 
-```{r}
-
-All_cv %>% 
-    mutate(pred = map(splits, predict_knn_reduced)) %>% unnest(pred) %>% 
-    conf_mat(truth = genre, estimate = .pred_class) %>% 
-    autoplot(type = 'mosaic')
-```
-
-***
-
-As you can see, the accuracy of the model has increased. It can now better predict whether a certain song falls within a certain era. This means that we can now make a better plot in showing the differences between the era's of Fleetwood Mac, using these features.
-
-### The new Fleetwood Mac plot of the different era's
-
-```{r}
-ggplotly(All_class %>%
-    ggplot(aes(x = c11, y = loudness, colour = genre, size = danceability, label = track.name)) +
-    geom_point(alpha = 0.8) +
-    scale_color_brewer(type = 'qual', palette = 'Accent') +
-    labs(
-        x = 'Timbre Component 11', 
-        y = 'Loudness', 
-        size = 'Danceability', 
-        colour = 'Era')
-    )
-```
-
-
-***
-
-This graph shows the most distinctive features of the Fleetwood Mac era's. Timbre component 11 is on the x-axis, loudness on the y-axis and danceability as the size of the dots.
-
-The intersting thing about this plot is that you can see a big pile of dots in the middle where the band overlaps musicly in all the era's, but you can also see the differences in the era's. The Blues era scores overall lower on timbre component 11 than the Transitioning and the Poprock era. The Poprock era scores higher in loudness comparative to the transitiong era, while the Blues era has all variaties of loudness. 
-
-An interesting outlier is the song Thoughts on a Grey Day from the Transitioning era, the dot in the lower left corner. This is actually a monaural recorded poem, so not a song. This is the last piece on the album Bare Trees and is delivered by an elderly woman that lived near the Fleetwood Mac's communal home. While it still belongs to the Transitioning era of Fleetwood Mac, it is not really representative at all of the music they made in that era. You might think that it is bad that this dot does not fit well with the model, but actually the fact that the model shows that this song does not fit well into any era, makes this a very accurate model because it is not a song and so it makes sense that it does not fit into any Fleetwood Mac era. 
-
-### Do the different Fleetwood Mac era's show differences in tempo?
-
-
-```{r}
-coldblacknight <- get_tidy_audio_analysis('7jlsJdutXm9AAT5lKYjjdy')
-
-whatashame <- get_tidy_audio_analysis('5wqtOvdY2hUQOkEMq33k1Y')
-
-dont_stop <- get_tidy_audio_analysis('4bEb3KE4mSKlTFjtWJQBqO')
-```
-
-
-```{r}
-coldblacknight %>% 
-    tempogram(window_size = 8, hop_size = 1, cyclic = TRUE) %>% 
-    ggplot(aes(x = time, y = bpm, fill = power)) + 
-    geom_raster() + 
-    scale_fill_viridis_c(guide = 'none') +
-    labs(x = 'Time (s)', y = 'Tempo (BPM)') +
-    theme_classic()
-
-whatashame %>% 
-    tempogram(window_size = 8, hop_size = 1, cyclic = TRUE) %>% 
-    ggplot(aes(x = time, y = bpm, fill = power)) + 
-    geom_raster() + 
-    scale_fill_viridis_c(guide = 'none') +
-    labs(x = 'Time (s)', y = 'Tempo (BPM)') +
-    theme_classic()
-
-dont_stop %>% 
-    tempogram(window_size = 8, hop_size = 1, cyclic = TRUE) %>% 
-    ggplot(aes(x = time, y = bpm, fill = power)) + 
-    geom_raster() + 
-    scale_fill_viridis_c(guide = 'none') +
-    labs(x = 'Time (s)', y = 'Tempo (BPM)') +
-    theme_classic()
-```
-
-
-***
-
-In these graphs you can see the Fourier-based tempograms of a representative song of all the 3 fleetwood mac era's, these are from left to right: Cold Black Night for the Blues era, What a Shame for the Transitioning era and Don't Stop for the Poprock era. These graphs show the tempo of changes within the songs.
-
-For Cold Black Night you can see the clearest line at about 143 BPM (which is close the tempo for the whole song according to Spotify, namely 135) and you can also see less clear lines and dots around this line. This song is a live recording so that is why you see so many dots and lines around the clearer line, representing little sounds that were in the studio. This song has many small tempo switches within the whole song indicating that the Blues era consits mostly of songs that have many tempo changes, which makes sense when you think about Blues music.
-
-For What a Shame you can see a clear line at about 140 BPM (which is close the tempo for the whole song according to Spotify, namely 138) and you cannot see any other lines. This tempo is very well received by the model. This song has an equal tempo in the whole song indicating that the Transitioning era consits mostly of songs that do not have many tempo changes and a very high tempo (about 140 BPM).
-
-For Don't stop you can see the clearest line at 119 BPM (which is also the tempo for the whole song according to Spotify) and you can also see less clear lines at half that tempo and double that tempo. This song has an equal average tempo in the whole song indicating that the Poprock era consits mostly of songs that do not have many tempo changes and a very average tempo (about 120BPM).
-
-So the Blues era and the Transitioning era have similar tempo's (about 140 BPM), but the Blues era has many tempo changes within the song, while the Transitiong era does not. The Poprock era has a much lower tempo than the other era's and does not have many tempo switches within the song just like the Transitioning era. Each era has some unique elements and also some overlapping elements, which is why Tempo seems to be a very useful tool to distinguish the different Fleetwood Mac era's, while still being able to recognize the same band within each era.
-
-
-### Chordograms and Keygrams of the most popular Fleetwood Mac song
-
+### Are Similar Patterns Observed within Chordograms and Keygrams? {data-commentary-width=350}
 
 ```{r}
 circshift <- function(v, n) {if (n == 0) v else c(tail(v, n), head(v, -n))}
@@ -366,11 +589,51 @@ key_templates <-
 ```
 
 
-```{r}
 
+```{r}
 ## Chordograms and Keygrams
 
-gyow <- 
+ltbkey <- 
+    get_tidy_audio_analysis('5zdVcGENQQ5pXTXxFp9oCZ') %>% 
+    compmus_align(sections, segments) %>% 
+    select(sections) %>% unnest(sections) %>% 
+    mutate(
+        pitches = 
+            map(segments, 
+                compmus_summarise, pitches, 
+                method = 'mean', norm = 'manhattan'))
+
+ltb_chord <- 
+    get_tidy_audio_analysis('5zdVcGENQQ5pXTXxFp9oCZ') %>% 
+    compmus_align(sections, segments) %>% 
+    select(sections) %>% unnest(sections) %>% 
+    mutate(
+        pitches = 
+            map(segments, 
+                compmus_summarise, pitches, 
+                method = 'mean', norm = 'manhattan'))
+
+hypnokey <- 
+    get_tidy_audio_analysis('1cHCG42MxckrXNFqyF8Uhr') %>% 
+    compmus_align(sections, segments) %>% 
+    select(sections) %>% unnest(sections) %>% 
+    mutate(
+        pitches = 
+            map(segments, 
+                compmus_summarise, pitches, 
+                method = 'mean', norm = 'manhattan'))
+
+hypno_chord <- 
+    get_tidy_audio_analysis('1cHCG42MxckrXNFqyF8Uhr') %>% 
+    compmus_align(sections, segments) %>% 
+    select(sections) %>% unnest(sections) %>% 
+    mutate(
+        pitches = 
+            map(segments, 
+                compmus_summarise, pitches, 
+                method = 'mean', norm = 'manhattan'))
+
+gyowkey <- 
     get_tidy_audio_analysis('07GvNcU1WdyZJq3XxP0kZa') %>% 
     compmus_align(sections, segments) %>% 
     select(sections) %>% unnest(sections) %>% 
@@ -379,6 +642,7 @@ gyow <-
             map(segments, 
                 compmus_summarise, pitches, 
                 method = 'mean', norm = 'manhattan'))
+
 
 gyow_chord <- 
     get_tidy_audio_analysis('07GvNcU1WdyZJq3XxP0kZa') %>% 
@@ -392,15 +656,56 @@ gyow_chord <-
 
 ```
 
-```{r}
-gyow %>% 
+
+
+```{r, fig.width=5, fig.height=4}
+ltbkey %>% 
     compmus_match_pitch_template(key_templates, 'euclidean', 'manhattan') %>% 
     ggplot(
         aes(x = start + duration / 2, width = duration, y = name, fill = d)) +
     geom_tile() +
     scale_fill_viridis_c(option = 'E', guide = 'none') +
     theme_minimal() +
-    labs(x = 'Time (s)', y = '')
+    labs(x = 'Time (s)', y = '')  + ggtitle("Love That Burns")
+
+hypnokey %>% 
+    compmus_match_pitch_template(key_templates, 'euclidean', 'manhattan') %>% 
+    ggplot(
+        aes(x = start + duration / 2, width = duration, y = name, fill = d)) +
+    geom_tile() +
+    scale_fill_viridis_c(option = 'E', guide = 'none') +
+    theme_minimal() +
+    labs(x = 'Time (s)', y = '') + ggtitle("Hypnotized")
+
+
+gyowkey %>% 
+    compmus_match_pitch_template(key_templates, 'euclidean', 'manhattan') %>% 
+    ggplot(
+        aes(x = start + duration / 2, width = duration, y = name, fill = d)) +
+    geom_tile() +
+    scale_fill_viridis_c(option = 'E', guide = 'none') +
+    theme_minimal() +
+    labs(x = 'Time (s)', y = '')+ ggtitle("Go Your Own Way")
+
+ltb_chord %>% 
+    compmus_match_pitch_template(chord_templates, 'euclidean', 'manhattan') %>% 
+    ggplot(
+        aes(x = start + duration / 2, width = duration, y = name, fill = d)) +
+    geom_tile() +
+    scale_fill_viridis_c(option = 'E', guide = 'none') +
+    theme_minimal() +
+    labs(x = 'Time (s)', y = '')  + ggtitle("Love That Burns")
+
+
+hypno_chord %>% 
+    compmus_match_pitch_template(chord_templates, 'euclidean', 'manhattan') %>% 
+    ggplot(
+        aes(x = start + duration / 2, width = duration, y = name, fill = d)) +
+    geom_tile() +
+    scale_fill_viridis_c(option = 'E', guide = 'none') +
+    theme_minimal() +
+    labs(x = 'Time (s)', y = '') + ggtitle("Hypnotized")
+
 
 gyow_chord %>% 
     compmus_match_pitch_template(chord_templates, 'euclidean', 'manhattan') %>% 
@@ -409,20 +714,81 @@ gyow_chord %>%
     geom_tile() +
     scale_fill_viridis_c(option = 'E', guide = 'none') +
     theme_minimal() +
-    labs(x = 'Time (s)', y = '')
+    labs(x = 'Time (s)', y = '') + ggtitle("Go Your Own Way")
 
 ```
 
 ***
 
-You can see here the Chordograms and Keygrams of Go Your Own Way, the most popular Fleetwood Mac song. As could be seen in the Self-similarity matrices, you can see a sort of square like figure for the first 140-160 seconds. That is where the bridge starts. 
+**Differences within Songs**
 
-Within the square you can see a sort of a wave motion, like a sine function. This shows the similarity in keys and chords in the verses and the choruses. Just as the conclusion from the self-similarity matrices, this song seems very similar within itself. It would be interesting to compare this to less popular Fleetwood Mac songs to see whether similarity is the reason why this song is the most popular.
+Where Chromograms are interesting for the overall chord usage within a song, are keygrams and chordograms interesting for their differences in keys and chords during the song. Are the same patterns observed as before?
+
+Just like the chromograms is it hard to analyse these graphs but there are still some patterns visible. When we look at Love that Burns we can see a similar thing as with the chromogram, the F major is not really used. You can also see a difference in key usage at 180 until 200 seconds. In this section a piano comes in to the song and all other musc falls to the background.You can also see some similar parts (before 100 seconds and after 200 seconds) but it is not so clear is in the chroma-based self-similarity matrix.
+
+You can see in the beginning of Hypnotized, and even more clearly in Go your own way that there is some section in the beginning of the some that seems different than the rest. However, this there because the computer does not know yet which keys and chords are used and is still searching, so these bits are actually musically not different from the rest of the song. Furthermore you can see a similar thing as in the chromogram, many keys and chrods seem to be used but there is not a clear pattern within them. even the different bit at a 120 seconds is not really different from the song when you listen to it, so unfortunately not much can be concluded.
+
+YYou can see within the Chordograms and Keygrams of Go Your Own Way, a similar thing as in the self-similarity matrix of pitch. You can see a sort of square like figure for the first 140-160 seconds, Where the bridge starts. Within the square you can see a sort of a wave motion, like a sine function. This shows the similarity in keys and chords in the verses and the choruses. Just as the conclusion from the self-similarity matrices, this song seems very similar within itself. It is intersting that this similarity could be seen by the chordograms and keygrams but not the similarity in the Blues song.
+
+**Differences in Eras**
+
+There is not such a clear pattern visible as in the chromograms of these songs. It seems though, that these songs are all very musically different from each other, with the Blues era showing many differences in keys and chords, the Transitioning era a similar usage and the Poprock era a recognizable pattern just like the self-similarity matrix of chroma-based features. 
 
 
+### Tempo Shows Differences but the Fleetwood Mac Style is Still Visible
 
-### Track-Level Summaries Of the Blues, Transitioning and Poprock Era
+```{r}
+coldblacknight <- get_tidy_audio_analysis('7jlsJdutXm9AAT5lKYjjdy')
 
+whatashame <- get_tidy_audio_analysis('5wqtOvdY2hUQOkEMq33k1Y')
+
+dont_stop <- get_tidy_audio_analysis('4bEb3KE4mSKlTFjtWJQBqO')
+```
+
+
+```{r, , fig.width=5, fig.height=5}
+coldblacknight %>% 
+    tempogram(window_size = 8, hop_size = 1, cyclic = TRUE) %>% 
+    ggplot(aes(x = time, y = bpm, fill = power)) + 
+    geom_raster() + 
+    scale_fill_viridis_c(guide = 'none') +
+    labs(x = 'Time (s)', y = 'Tempo (BPM)') +
+    theme_classic()
+
+whatashame %>% 
+    tempogram(window_size = 8, hop_size = 1, cyclic = TRUE) %>% 
+    ggplot(aes(x = time, y = bpm, fill = power)) + 
+    geom_raster() + 
+    scale_fill_viridis_c(guide = 'none') +
+    labs(x = 'Time (s)', y = 'Tempo (BPM)') +
+    theme_classic()
+
+dont_stop %>% 
+    tempogram(window_size = 8, hop_size = 1, cyclic = TRUE) %>% 
+    ggplot(aes(x = time, y = bpm, fill = power)) + 
+    geom_raster() + 
+    scale_fill_viridis_c(guide = 'none') +
+    labs(x = 'Time (s)', y = 'Tempo (BPM)') +
+    theme_classic()
+```
+
+
+***
+
+We have now looked at Chroma and Timbre features of the most popular Fleetwood Mac songs. We also want to be able to see differences in other songs that are not only representative for their era but also distinctive. That is why I chose songs from the visualisation of danceability and energy at the beginning of this project. I chose songs that are the average of their era within this graph and looked at the tempo.
+
+The graphs you can see here are the Fourier-based tempograms of a representative song of all the 3 fleetwood mac eras, these are from left to right: Cold Black Night for the Blues era, What a Shame for the Transitioning era and Don't Stop for the Poprock era. These graphs show the tempo changes within the songs.
+
+For Cold Black Night you can see the clearest line at about 143 BPM (which is close the tempo for the whole song according to Spotify, namely 135) and you can also see less clear lines and dots around this line. This song is a live recording so that is why you see so many dots and lines around the clearer line, representing little sounds that were in the studio. This song has many small tempo switches within the whole song indicating that the Blues era consits mostly of songs that have many tempo changes, which makes sense when you think about Blues music.
+
+For What a Shame you can see a clear line at about 140 BPM (which is close the tempo for the whole song according to Spotify, namely 138) and you cannot see any other lines. This tempo is very well received by the model. This song has an equal tempo in the whole song indicating that the Transitioning era consits mostly of songs that do not have many tempo changes and a very high tempo (about 140 BPM).
+
+For Don't stop you can see the clearest line at 119 BPM (which is also the tempo for the whole song according to Spotify) and you can also see less clear lines at half that tempo and double that tempo. This song has an equal average tempo in the whole song indicating that the Poprock era consits mostly of songs that do not have many tempo changes and a very average tempo (about 120BPM).
+
+So the Blues era and the Transitioning era have similar tempos (about 140 BPM), but the Blues era has many tempo changes within the song, while the Transitiong era does not. The Poprock era has a much lower tempo than the other eras and does not have many tempo switches within the song just like the Transitioning era. Each era has some unique elements and also some overlapping elements, which is why Tempo seems to be a very useful tool to distinguish the different Fleetwood Mac era's, while still being able to recognize the same style of the band within each era.
+
+
+### Are There Distinguishing Features between the Blues, Transitioning and Poprock Era of Fleetwood Mac?
 
 ```{r}
 Blues <-
@@ -453,7 +819,7 @@ All <-
 ```
 
 
-```{r}
+```{r, fig.width=8, fig.height=6}
 All %>%
     mutate(
         sections = 
@@ -498,357 +864,215 @@ All %>%
 
 ***
 
-When looking at the graph on the left you can see the track-level summaries for all the Fleetwood Mac era's. The tracks for the Transitioning and the Poprock era are very similar in the tempo. The Blues era has overall songs with a slower tempo. Also, the Blues era has songs with longer duration as the transitiong and poprock era songs. 
+When zooming out and taking a look at all the songs of Fleetwood Mac we can see how the tempo looks overall. We can also look into some specific Timbre features to see of they are indicative of a different Fleetwood Mac era.
 
-The right graph is about the valued-feature timbre. You can see that most coefficients are very similar for all era's. Possible good markers for distinguishing between era's might be either coeffiencent 2 or coeffiencent 3. These show the most differences in patterns compared to the other timbre coefficents. 
+When looking at the graph on the left you can see the track-level summaries for all the Fleetwood Mac eras. The tracks for the Transitioning and the Poprock era are very similar in Tempo. The Blues era has overall songs with a slower tempo. Also, the Blues era has songs with longer duration as the transitiong and poprock era songs. These remarks are similar to the tempo changes within the songs but are a bit less visible. 
+
+The right graph is about the valued-feature timbre. You can see that most coefficients are very similar for all eras. Possible good markers for distinguishing between eras might be either coeffiencent 2 or coeffiencent 3. These show the most differences in patterns compared to the other timbre coefficents. 
+
+As we have seen from looking at all these features, there are definitely some differences between Fleetwood Mac eras to be noticed. Is it however also possible for the computer to notice this difference? That is what we are going to looki at in the last piece of this project.
 
 
-### What kind of patterns are observed within chroma-based and timbre-based self-similarity matrices of the most popular Fleetwood Mac song?
+Prediction {.storyboard}
+==============================================
+
+### Predicting the Different Fleetwood Mac Eras Using All Features
+
+```{r}
+
+Blues_class <-
+    get_playlist_audio_features(
+        'thomas visser', 
+        '2czumoRYpSJJLHstb8FB2R') %>% 
+    slice(1:50) %>% 
+    add_audio_analysis()
+
+Transitioning_class <-
+    get_playlist_audio_features(
+        'thomas visser', 
+        '05X93o38tBQUwpSlSwpU1O') %>% 
+    slice(1:50) %>% 
+    add_audio_analysis()
+
+Poprock_class <-
+    get_playlist_audio_features(
+        'thomas visser', 
+        '0B1v5hCCBw7dyj0RVt90w0') %>% 
+    slice(1:50) %>% 
+    add_audio_analysis()
+
+#All <-
+   # Blues %>% mutate(genre = "Blues") %>%
+    #bind_rows(Poprock %>% mutate(genre = "Poprock")) %>%
+   # bind_rows(Transitioning %>% mutate(genre = "Transitioning")) 
+
+
+
+```
 
 
 ```{r}
-gyow <- get_tidy_audio_analysis('07GvNcU1WdyZJq3XxP0kZa') %>% 
-    compmus_align(bars, segments) %>% 
-    select(bars) %>% unnest(bars) %>% 
+All_class <- 
+    Blues_class %>% mutate(genre = "Blues") %>% 
+    bind_rows(
+        Transitioning_class %>% mutate(genre = "Transitioning"),
+        Poprock_class %>% mutate(genre = "Poprock")) %>% 
+    mutate(genre = factor(genre)) %>% 
+    mutate(
+        segments = 
+            map2(segments, key, compmus_c_transpose)) %>% 
     mutate(
         pitches = 
             map(segments, 
                 compmus_summarise, pitches, 
-                method = 'rms', norm = 'euclidean')) %>% 
-    mutate(
-        timbre = 
-            map(segments, 
-                compmus_summarise, timbre, 
-                method = 'rms', norm = 'euclidean'))
+                method = 'mean', norm = 'manhattan'),
+        timbre =
+            map(
+                segments,
+                compmus_summarise, timbre,
+                method = 'mean')) %>% 
+    mutate(pitches = map(pitches, compmus_normalise, 'clr')) %>% 
+    mutate_at(vars(pitches, timbre), map, bind_rows) %>% 
+    unnest(cols = c(pitches, timbre))
+```
 
-gyow %>% 
-    compmus_self_similarity(pitches, 'cosine') %>% 
-    ggplot(
-        aes(
-            x = xstart + xduration / 2, 
-            width = xduration,
-            y = ystart + yduration / 2,
-            height = yduration,
-            fill = d)) + 
-    geom_tile() +
-    coord_fixed() +
-    scale_fill_viridis_c(option = 'A', guide = 'none') +
-    theme_classic() +
-    labs(x = 'Time (s)', y = 'Time (s)')
 
-gyow %>% 
-    compmus_self_similarity(timbre, 'cosine') %>% 
-    ggplot(
-        aes(
-            x = xstart + xduration / 2, 
-            width = xduration,
-            y = ystart + yduration / 2,
-            height = yduration,
-            fill = d)) + 
-    geom_tile() +
-    coord_fixed() +
-    scale_fill_viridis_c(option = 'A', guide = 'none') +
-    theme_classic() +
-    labs(x = 'Time (s)', y = 'Time (s)')
+```{r}
+All_class_class <- 
+    recipe(genre ~ # probably only need to change playlist to playlist name
+               danceability +
+               energy +
+               loudness +
+               speechiness +
+               acousticness +
+               instrumentalness +
+               liveness +
+               valence +
+               tempo +
+               duration +
+               C + `C#|Db` + D + `D#|Eb` +
+               E + `F` + `F#|Gb` + G +
+               `G#|Ab` + A + `A#|Bb` + B +
+               c01 + c02 + c03 + c04 + c05 + c06 +
+               c07 + c08 + c09 + c10 + c11 + c12,
+           data = All_class) %>% 
+    step_center(all_predictors()) %>% # make/use z- scores
+    step_scale(all_predictors()) %>%
+    # step_range(all_predictors()) %>% if you do this than the min is 0 and the max is 1
+    prep(All_class) %>% 
+    juice
+```
 
+
+```{r}
+#Cross-Validation
+All_cv <- All_class_class %>% vfold_cv(5) # breaks up everything, train on random 4/5 and test on 1/5 to see how well the algorithm does. 10 gives more accurate results
+```
+
+
+```{r}
+All_knn <- 
+    nearest_neighbor(mode = 'classification', neighbors = 1) %>% 
+    set_engine('kknn')
+predict_knn <- function(split)
+    fit(All_knn, genre ~ ., data = analysis(split)) %>% 
+    predict(assessment(split), type = 'class') %>%
+    bind_cols(assessment(split))
+```
+
+
+```{r}
+All_cv %>% 
+    mutate(pred = map(splits, predict_knn)) %>% unnest(pred) %>% 
+    conf_mat(truth = genre, estimate = .pred_class) %>% 
+    autoplot(type = 'mosaic')
+
+
+```
+
+
+***
+
+With the $k$-nearest neighbour classifier all features are used to predict whether a certain song fits in the Blues era, the Transitioning era or the Poprock era of Fleetwood Mac. You can see that this is already a somewhat accurate way of predicting which songs fall into which era.
+
+However, This classifier is very sensitive to the choice of features so we need to select the most distinctive features in order to improve our accuravy in predicting which songs belongs to which era. This is what we are doing by creating a random Forest.
+
+### Detecting the Most Relevant Features with Random Forest
+
+```{r}
+All_forest <- 
+    rand_forest(mode = 'classification') %>% 
+    set_engine('randomForest')
+predict_forest <- function(split)
+    fit(All_forest, genre ~ ., data = analysis(split)) %>% 
+    predict(assessment(split), type = 'class') %>%
+    bind_cols(assessment(split))
+```
+
+
+```{r}
+All_class_class %>% 
+    fit(All_forest, genre ~ ., data = .) %>% 
+    pluck('fit') %>% 
+    randomForest::varImpPlot()
 ```
 
 ***
 
-These graphs show the self-similarity matrices of the most popular Fleetwood Mac song on Spotify: Go Your Own Way (from the Pop/Rock era). The graph on the left is a chroma-based self-similarity matrix and the graph on the right is a timbre-based self-similarity matrix.
+By creating a random Forest multiple times, you get the features that show the most distinctive power in deciding which songs belongs to which era. As you can see from this plot, the most distinctive features are c11, loudness, danceability, c06 and c10. Now we have to compute a new model with these features and see whether the accuracy has increased or not.
 
-The song seems to be divided in a very similar patterned square in the first 140 seconds and after that a different section until the end of the song. In this first square you can see patterns with large black squares, these represent the verses of the song, a slower tempo and more lyrics. You can also see patterns with small black squares in between the large black squares, representing the chorus of the song, a faster tempo and less lyrics.
-
-After the first 140 seconds you can see a little bit of a different section. In this section there is an instrumental bridge with a faster tempo and the chorus is repeated over and over until it fades out. This is easily observable because you can identify little sections with small black suares (just like the ones before) that keep repeating themselves until the end.
-
-It is very interesting to see that a song this popular does not seem to have much tempo switches or different sections within it. It is a very 'symmeterical' song in this sense, which I would assume means that most of us like symmetrical songs over songs that are 'unsymmetrical'.
-
-
-### Introduction: Fleetwood Mac, from a British blues band to a worldwide poprock band, what happenend?
-
-**Fleetwood Mac as a Blues Band**
-
-Fleetwood Mac is originally a British blues band that came up at the end of the 1960s and beginning of the 1970s. The original band members was formed by Peter Green, Mick Fleetwood, Jeremy Spencer John McVie and later Chistine Perfect and Danny Kirwan.The Blues period lasted from 1967 to 1969, when Peter Green and Jeremy Spencer both left the band due to mental illness. The band began transitioning into a more pop/rock style from 1970 to 1974 but this potential was not fully reached until the recruitment of Lindsey Buckingham and Stevie Nicks.     
-
-**Fleetwood Mac as a Pop Rock Band**
-
-Fleetwood Mac established itself as a poprock band in 1975 when they recruited Lindsey Buckingham and Stevie Nicks. The first album they created together was a breakthrough for the band. They became popular worldwide and got mainstream media fame. After this album all romantic relationships within the band came to an end. This caused major tensions in the band but thankfully all these came together in the creative drug infused and alcoholic miracle album Rumours. This album was basically in album with only hits giving the band even more succes across the globe. Rumours has become number eight on the list of best-selling albums of all time with 40 million copies sold. After this albums a few other succeful albums were created, but none came close to the succes of the Rumours. The tensions in the band made it so people were leaving and joining the band every couple of years and not as many music was created as in the early blues days.
-
-**What is the Difference in Music?**
-
-Fleetwood Mac is a band that has had such an exciting musical history and has made so many huge hits that it's interesting to compare all the Fleetwood Mac albums to each other using the Spotify API. What were the differences between these albums? What is the secret of the album Rumours compared to the other albums? And how did the Blues era compare to the transitiong era and to the pop/rock era of Fleetwood Mac?
-
-**The Research Project**
-
-For this project I created three era's of albums that I want to compare, a Blues era containing the albums Fleetwood Mac (Peter Green's Fleetwood Mac), Mr.Wonderful and Then Play On, a Transitioning era containing the albums Kiln House, Future Games, Bare Trees, Penguin, Mystery to Me and Heroes are Hard to Find and a pop/rock era containing the albums Fleetwood Mac (Stevie Nicks/Lindsey Buckingham's Fleetwood Mac), Rumours, Tusk, Mirage, Tango in the Night, Behind the Mask, Time and Say You Will. These are in total all the studio albums from Fleetwood Mac (according to Wikipedia). Rumours was saved as a stand-alone album aswell so it could be compared to all the other albums. I also made a playlist containing all the albums so general means of all variables could be calculated. I looked at five features from the Spotify API: danceability, valence, tempo, energy and instrumentalness. 
-
-### First Glance at Spotify API features Danceability, Valence, Tempo, Energy and Instrumentallness. What are Striking first findings in means and standard deviations?
-
-**Danceability**
-
-Danceability is (according to the Spotify API) a measure of how suitable a track is for dancing, based on the combination of some musical elements including tempo, rhythm stability, beat strength and overall regularity. Danceability is measured on a scale from 0 to 1, where a zero stands for least danceable and a one stands for most danceable.
-
-When looking at danceability you can see a small steady increase with a lower danceability of the Blues era (M = 0.52, SD = 0.12), a higher danceability of the transitioning era (M = 0.53, SD = 0.10) and the highest danceability of the pop/rock era (M = 0.60, SD = 0.11). The danceability of Rumours was the highest overall (M = 0.65, SD = 0.08). The average danceability across all albums was 0.56 (SD = 0.12).
-
-**Valence**
-
-Valence is (according to the Spotify API) a measure that describes the musical positiveness conveyed by a track. Tracks with a high valence are generally more happy, cheerful and euphoric and tracks with a low valence are generally more sad, depressed and angry.
-Valence is measured on a scale from 0 to 1, where a zero stands for most negative (lowest valence) and a one stands for most positive (highest valence).
-
-When looking at valence you see an increase in the beginning with a lower valence of the Blues era (M = 0.55, SD = 0.26) and a high valence of the transitioning era (M = 0.65, SD = 0.24). Then the valence stays more or less the same in the pop/rock era (M = 0.64, SD = 0.23). The valence of Rumours was the highest overall (M = 0.71, SD = 0.19). The average valence across all albums was 0.62 (SD = 0.25).
-
-**Tempo**
-
-Tempo is (according to the Spotify API) the estimated pace of a track in beats per minute (BPM). This is a measure that can be interpreted as how fast or slow a song is. Tempo has a scale that ranges from about 50 (BPM) to about 220 (BPM), where 50 (BPM) stands for a slow tempo/song and 220 (BPM) stands for a very high tempo/song.
-
-When looking at tempo you can see a steady increase with a lower tempo in the Blues era (M = 114.05, SD = 29.79), a higher tempo in the transitioning era (M = 122.90, SD = 29) and the highest tempo in the pop/rock era (M = 124.47, SD = 24.64). The tempo of Rumours was the highest overall (M = 130.80, SD = 21.54). The average danceability across all albums was 121.62 (SD = 27.30).
-
-**Energy**
-
-Energy is (according to the Spotify API) a measure of intensity and activity. High energetic tracks are generally loud and noisy and low energetic tracks are generally quiet. Energy is measured on a scale from 0 to 1, where a zero stands for least energetic and a one stands for most energetic.
-
-When looking at energy you see a small increase in the beginning with a lower energy of the Blues era (M = 0.40, SD = 0.21) and a bit higher energy of the transitioning era (M = 0.48, SD = 0.19). In the pop/rock era the energy has increased by a lot and the highest average value for energy is found (M = 0.61, SD = 0.21). The Energy of Rumours was about the same as the overall energy in the pop/rock era (M = 0.59, SD = 0.26). The average energy across all albums was 0.53 (SD = 0.22).
-
-**Instrumentalness**
-
-Instrumentalness is (according to the Spotify API) a measure of **non ** vocalness and the spoken word in a song. In this context are *ooh* and *aah * sounds considered as vocal. So a track with a high instrumentalness has not many vocals in the song and a track with a low instrumentalness has many vocals in the song. Instrumentalness is measured on a scale from 0 to 1, where a zero stands for most vocal and a one stands for least vocal (most instrumental).
-
-When looking at the Instrumentalness you can see a bell shaped curve with a lower Instrumentalness in the Blues era (M = 0.17, SD = 0.32) a higher Instrumentalness in the transitioning era (M = 0.24, SD = 0.33) and the lowest Instrumentalness in the pop/rock era (M = 0.06, SD = 0.16). The Instrumentalness of Rumours was about the same as the overall instrumentalness in the pop/rock era (M = 0.05, SD = 0.14). The average Instrumentalness across all albums was 0.13 (SD = 0.27).
-
-
-**Striking Features**
-
-The features Danceability, Tempo and Energy all seem to increase from the blues era to the pop/rock era. This makes semantical sense because Blues is generally less danceable, has a slower pace and a lower energy compared to pop/rock. Valence increased from the Blues era to the Transitional era and then stayed the same in the pop/roprock era. Blues music sounds generally more negative than the tracks in the other two era's of Fleetwood Mac so this finding makes sense. Also, when listening to the transitional and the pop/rock era I do not hear much difference in the overall positiveness of the songs so tha valence having the same value for these era's makes sense. 
-
-Instrumentalness has a very interesting result, with the highest instrumentalness (lowest vocalness) in the transitional period and the lowest instrumentalness in the pop/rock era. This seems likely to be explained by the fact that both singers Peter Green and Jeremy Spencer left the band at this time so there was not a leadsinger established. The bandmember Danny Kirwan was forced more or less to be the frontman of the band but he was more of a guitar player at heart. This explains the fact that there were less vocals in the transitional period. In the pop/rock era Stevie Nicks and Lindsey Buckingham joined the band and they were both singers and lyrically talented, which is why the instrumentalness is almost zero in this era, indicating a high amount of vocalness within the songs.
-
-Rumours does seem different compared to all other albums when looking at the features Danceability, Valence and Tempo. It scored the highest on all of these features indicating that this album was musically different than the other albums, even compared to the pop/rock era in which the music was very similar. The features Energy and Instrumentalness of Rumours do not seem to differ from the overall Energy and Intstrumentalness pop/rock era. 
-
-### Visualisation: Fleetwood Mac moves from slow low energy blues tracks to high energy danceable tracks
+### Predicting the Different Fleetwood Mac Eras Using the Most Distinctive Features
 
 ```{r}
+predict_knn_reduced <- function(split)
+    fit(
+        All_knn, 
+        genre ~ c11 + loudness + danceability + c06 + c10, 
+        data = analysis(split)) %>% 
+    predict(assessment(split), type = 'class') %>%
+    bind_cols(assessment(split))
 
-# Creating all the wanted variables for comparisons
-
-fleetwood_mac_all_albums <- get_playlist_audio_features('thomas visser', '06uRyAVYL3GHFF02q2QtjC')
-
-fleetwood_mac_album1 <- fleetwood_mac_all_albums[which(fleetwood_mac_all_albums$track.album.name == 'Fleetwood Mac'),]
-Mr.wonderful <- fleetwood_mac_all_albums[which(fleetwood_mac_all_albums$track.album.name == 'Mr. Wonderful'),]
-then_play_on <- fleetwood_mac_all_albums[which(fleetwood_mac_all_albums$track.album.name == 'Then Play On (2013 Remaster; Expanded Edition)'),]
-Kiln_House <- fleetwood_mac_all_albums[which(fleetwood_mac_all_albums$track.album.name == 'Kiln House'),]
-Future_games <- fleetwood_mac_all_albums[which(fleetwood_mac_all_albums$track.album.name == 'Future Games'),]
-Bare_trees <- fleetwood_mac_all_albums[which(fleetwood_mac_all_albums$track.album.name == 'Bare Trees'),]
-Penguin <- fleetwood_mac_all_albums[which(fleetwood_mac_all_albums$track.album.name == 'Penguin'),]
-Mystery_to_me <- fleetwood_mac_all_albums[which(fleetwood_mac_all_albums$track.album.name == 'Mystery to Me'),]
-Heroes_are_hard_to_find <- fleetwood_mac_all_albums[which(fleetwood_mac_all_albums$track.album.name == 'Heroes Are Hard to Find'),]
-fleetwood_mac_album2 <- fleetwood_mac_all_albums[which(fleetwood_mac_all_albums$track.album.name == 'Fleetwood Mac (2017 Remaster)'),]
-rumours <- fleetwood_mac_all_albums[which(fleetwood_mac_all_albums$track.album.name == 'Rumours'),]
-Tusk <- fleetwood_mac_all_albums[which(fleetwood_mac_all_albums$track.album.name == 'Tusk (2015 Remaster)'),]
-Mirage <- fleetwood_mac_all_albums[which(fleetwood_mac_all_albums$track.album.name == 'Mirage (2016 Remaster)'),]
-Tango_in_the_night <- fleetwood_mac_all_albums[which(fleetwood_mac_all_albums$track.album.name == 'Tango in the Night (2017 Remaster)'),]
-Behind_the_mask <- fleetwood_mac_all_albums[which(fleetwood_mac_all_albums$track.album.name == 'Behind the Mask'),]
-Time <- fleetwood_mac_all_albums[which(fleetwood_mac_all_albums$track.album.name == 'Time'),]
-Say_you_will <- fleetwood_mac_all_albums[which(fleetwood_mac_all_albums$track.album.name == 'Say You Will'),]
-
-
-Blues_era <- fleetwood_mac_album1 %>% bind_rows(Mr.wonderful, then_play_on)
-Transitioning_era <- Kiln_House %>% bind_rows(Future_games, Bare_trees, Penguin, Mystery_to_me, Heroes_are_hard_to_find)  
-Pop_rock_era <- fleetwood_mac_album2 %>% bind_rows(rumours, Tusk, Mirage, Tango_in_the_night, Behind_the_mask, Time, Say_you_will)
-# Rumours    
-
-Fleetwood_all <- Blues_era %>% mutate(era = "Blues era") %>% bind_rows(Transitioning_era %>% mutate(era = "Transitioning era")) %>% bind_rows(Pop_rock_era %>% mutate(era = "Pop/Rock era"))
-
-#fleetwood_mac_all_albums$era <- rbind('Blues era' = fleetwood_mac_all_albums[1:53,], 'Transitioning era' = #fleetwood_mac_all_albums[54:113,], 'Pop rock_era' = fleetwood_mac_all_albums[114:227,])
-
-mean_dans <- fleetwood_mac_all_albums %>% summarise(M = mean(danceability), SD = sd(danceability))
-mean_val <- fleetwood_mac_all_albums %>% summarise(M = mean(valence), SD = sd(valence))
-mean_tempo <- fleetwood_mac_all_albums %>% summarise(M = mean(tempo), SD = sd(tempo))
-mean_energy <- fleetwood_mac_all_albums %>% summarise(M = mean(energy), SD = sd(energy))
-mean_instru <- fleetwood_mac_all_albums %>% summarise(M = mean(instrumentalness), SD = sd(instrumentalness))
-
-
+All_cv %>% 
+    mutate(pred = map(splits, predict_knn_reduced)) %>% unnest(pred) %>% 
+    conf_mat(truth = genre, estimate = .pred_class) %>% 
+    autoplot(type = 'mosaic')
 ```
 
+***
+
+As you can see, the accuracy of the model has increased. It can now better predict whether a certain song falls within a certain era. It can with a high accuracy predict which song falls within which era, which shows that there are in fact real differences between the Fleetwood Mac eras.
+
+This means that we can now make a better plot in showing of these differences between the eras of Fleetwood Mac, using these features instead of the features we used at the start of this project.
+
+
+### Fleetwood Mac Has Distinctive Eras but It is Still Fleetwood Mac
 
 ```{r}
-
-# ADD GRAPH OF INSTRUMENTALNESS LATER
-
-Fleet <-
-  Fleetwood_all %>% # Start with all albums
-  ggplot(                      # Set up the plot.
-    aes(
-      x = danceability,
-      y = energy,
-      size = valence,
-      colour = era,
-      label = track.name   # Labels will be interactively visible.
+ggplotly(All_class %>%
+    ggplot(aes(x = c11, y = loudness, colour = genre, size = danceability, label = track.name)) +
+    geom_point(alpha = 0.8) +
+    scale_color_brewer(type = 'qual', palette = 'Accent') +
+    labs(
+        x = 'Timbre Component 11', 
+        y = 'Loudness', 
+        size = 'Danceability', 
+        colour = 'Era')
     )
-  ) +
-  geom_point() +               # Scatter plot.
-  geom_rug(size = 0.1) +       # Add 'fringes' to show data distribution.
-  #facet_wrap(~ era) +          # Separate charts per playlist.
-  scale_x_continuous(          # Fine-tune the x axis.
-    limits = c(0, 1),
-    breaks = c(0, 0.50, 1),  # Use grid-lines for quadrants only.
-    minor_breaks = NULL      # Remove 'minor' grid-lines.
-  ) +
-  scale_y_continuous(          # Fine-tune the y axis in the same way.
-    limits = c(0, 1),
-    breaks = c(0, 0.50, 1),
-    minor_breaks = NULL
-  ) +
-  scale_colour_brewer(         # Use the Color Brewer to choose a palette.
-    type = "qual",           # Qualitative set.
-    palette = "Paired"       # Name of the palette is 'Paired'.
-  ) +
-  scale_size_continuous(       # Fine-tune the sizes of each point.
-    trans = "exp",           # Use an exp transformation to emphasise loud.
-    guide = "none"           # Remove the legend for size.
-  ) +
-  theme_light() +              # Use a simpler them.
-  labs(                        # Make the titles nice.
-    x = "Danceability",
-    y = "Energy",
-    colour = "",
-    size = "Valence"
-  ) + scale_color_viridis(discrete = T, option = "D")
-
-
-ggplotly(na.omit(Fleet))
-
-
-
-#ggplot(fleetwood_mac_all_albums, aes(x = track.album.release_date, y = valence, color = track.popularity)) + geom_point()
-#ggplot(fleetwood_mac_all_albums, aes(x = track.popularity, y = danceability, color = track.album.name)) + geom_boxplot()
-
-# color = track.album.name facet_wrap(~track.album.name)
-
-# fleetwood_mac_all_albums$track.album.release_date <- as.Date(fleetwood_mac_all_albums$track.album.release_date)
-
-
 ```
 
 ***
 
-This Graph contains all songs of Fleetwood Mac studio albums. The songs are divided in the three different era's of Fleetwood Mac, the Blues era, the Transitioning era and the Pop/Rock era. These era's and their colours are shown on the right side of the graph. The size of the dot represents the overall valence (positivity) of that particalur song. You can hover over songs to get some extra information about them.    
+**The Distintive Graph**
 
-Fleetwood Mac started out as a band with mostly songs that were not that danceable and low energy, which really illustrates there Blues era. In the transitional period you see the yellow dots moving more towards higher energy and higher danceability, while still making slow low energy songs here and there. They are trying to find a new sounds but they are not there yet. The Green dots really showcase how Fleetwood Mac has changed in the Pop/rock era. Most songs are very high energy and the danceability is also considerably higher. An outlier to this pattern seems to be the song The Second Time (green dot leftside below).
+This graph shows the most distinctive features of the Fleetwood Mac eras. Timbre component 11 is on the x-axis, loudness on the y-axis and danceability as the size of the dots.
 
-The Mode is the valence of the song (positivity). As you can see the Blues era has mostly small dots, which are more negative sounds in their songs. The Transitional and Pop/Rock era have mostly big dots, meaning the sounds are a lot more positive which is porbably also why they are more danceable and have higher energy.
+The interesting thing about this plot is that you can see a big pile of dots in the middle where the band overlaps musically in all the eras, but you can also see the differences in the eras. The Blues era scores overall lower on timbre component 11 than the Transitioning and the Poprock era. The Poprock era scores higher in loudness comparative to the transitiong era, while the Blues era has all variaties of loudness. 
 
-### Visualisation: Was Rumours really that special?
+An interesting outlier is the song Thoughts on a Grey Day from the Transitioning era, the dot in the lower left corner. This is actually a monaural recorded poem, so not a song. This is the last piece on the album Bare Trees and is delivered by an elderly woman that lived near the Fleetwood Mac's communal home. While it still belongs to the Transitioning era of Fleetwood Mac, it is not really representative at all of the music they made in that era. You might think that it is bad that this dot does not fit well with the model, but actually the fact that the model shows that this song does not fit well into any era, makes this a very accurate model because it is not a song and so it makes sense that it does not fit into any Fleetwood Mac era.
 
-```{r}
+**Concluding words**
 
-Rumours_rum <-
-  Pop_rock_era %>%            # Start with all albums from pop/rock era
-  ggplot(                      # Set up the plot.
-    aes(
-      x = danceability,
-      y = valence,
-      #size = tempo,
-      colour = track.album.name,
-      label = track.name   # Labels will be interactively visible.
-    )
-  ) +
-  geom_point() +               # Scatter plot.
-  geom_rug(size = 0.1) +       # Add 'fringes' to show data distribution.
-  #facet_wrap(~ era) +          # Separate charts per playlist.
-  scale_x_continuous(          # Fine-tune the x axis.
-    limits = c(0, 1),
-    breaks = c(0, 0.50, 1),  # Use grid-lines for quadrants only.
-    minor_breaks = NULL      # Remove 'minor' grid-lines.
-  ) +
-  scale_y_continuous(          # Fine-tune the y axis in the same way.
-    limits = c(0, 1),
-    breaks = c(0, 0.50, 1),
-    minor_breaks = NULL
-  ) +
-  scale_colour_brewer(         # Use the Color Brewer to choose a palette.
-    type = "qual",           # Qualitative set.
-    palette = "Paired"       # Name of the palette is 'Paired'.
-  ) +
-  scale_size_continuous(       # Fine-tune the sizes of each point.
-    trans = "exp",           # Use an exp transformation to emphasise loud.
-    guide = "none"           # Remove the legend for size.
-  ) +
-  theme_light() +              # Use a simpler them.
-  labs(                        # Make the titles nice.
-    x = "Danceability",
-    y = "Valence",
-    colour = "Album Name",
-    size = "Tempo"
-  ) + scale_color_viridis(discrete = T, option = "D")
-
-
-ggplotly(na.omit(Rumours_rum))
-
-
-
-```
-
-***
-
-This Graph contains all songs of Fleetwood Mac albums in the Pop/Rock era. Rumours was such a huge album with many hits so it is interesting to see how this album contests with all the other albums of the Pop/Rock era. 
-
-When looking at this graph, we notice that Rumours does not look that different than all the other albums of the Pop/Rock era in these specific Spotify features. So maybe is Rumours not that musically different from these albums but is it more semantically different. With semantically different I mean that the songs of rumours all contain real lyrics and emotions in a time were the tensions of the band were really high. It might be that people understand the difference between a lyrically meaningful song and a lyrically not so meaningful song, but an Algorithm cannot view this distance. 
-
-So I would argue that Rumours does not look different from other albums in the Pop/Rock era because an algorithm cannot distinct between meaningful and meaningless songs. Therefore the conclusion would be that although Rumours does not look that different in this graph, it might still be different in its semantical meaning compared to the other albums. 
-
-### Chromagram: is The Second Time really musically different from the other Fleetwood Mac songs?
-
-
-```{r }
-
-second_time <- 
-  get_tidy_audio_analysis('14nc3a84fMDelO7Y3Rwqg2') %>% 
-  select(segments) %>% unnest(segments) %>% 
-  select(start, duration, pitches)
-
-# outlier The Second Time from the album behind the mask.
-
-
-```
-
-```{r}
-
-second_time %>% 
-  mutate(pitches = map(pitches, compmus_normalise, 'chebyshev')) %>% 
-  compmus_gather_chroma %>% 
-  ggplot(
-    aes(
-      x = start + duration / 2, 
-      width = duration, 
-      y = pitch_class, 
-      fill = value)) + 
-  geom_tile() +
-  labs(x = 'Time (s)', y = NULL, fill = 'Magnitude') +
-  theme_minimal() + scale_color_viridis(option = "E")
-
-
-
-```
-
-*** 
-
-This is a chromagram of the outlier to the Energy/Danceability pattern of the song The Second Time. 
-
-The song was mostly played in the C and G keys.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+The goal of this project was to figure out if Spotify recognizes the differences between the specified Blues, Transitioning and Poprock era. As you could see throughout this project, they do differ in Spotify features. This last graph shows a perfect summary of the message of this project: there are clearly differences between the different eras of Fleetwood Mac but Fleetwood Mac is in all eras still Fleetwood Mac.
 
 
 
