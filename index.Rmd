@@ -753,7 +753,7 @@ coldblacknight %>%
     geom_raster() + 
     scale_fill_viridis_c(guide = 'none') +
     labs(x = 'Time (s)', y = 'Tempo (BPM)') +
-    theme_classic()
+    theme_classic() + ggtitle("Cold Black Night")
 
 whatashame %>% 
     tempogram(window_size = 8, hop_size = 1, cyclic = TRUE) %>% 
@@ -761,7 +761,7 @@ whatashame %>%
     geom_raster() + 
     scale_fill_viridis_c(guide = 'none') +
     labs(x = 'Time (s)', y = 'Tempo (BPM)') +
-    theme_classic()
+    theme_classic() + ggtitle("What A Shame")
 
 dont_stop %>% 
     tempogram(window_size = 8, hop_size = 1, cyclic = TRUE) %>% 
@@ -769,8 +769,8 @@ dont_stop %>%
     geom_raster() + 
     scale_fill_viridis_c(guide = 'none') +
     labs(x = 'Time (s)', y = 'Tempo (BPM)') +
-    theme_classic()
-```
+    theme_classic() + ggtitle("Don't Stop")
+``` 
 
 
 ***
@@ -1072,7 +1072,7 @@ An interesting outlier is the song Thoughts on a Grey Day from the Transitioning
 
 **Concluding words**
 
-The goal of this project was to figure out if Spotify recognizes the differences between the specified Blues, Transitioning and Poprock era. As you could see throughout this project, they do differ in Spotify features. This last graph shows a perfect summary of the message of this project: there are clearly differences between the different eras of Fleetwood Mac but Fleetwood Mac is in all eras still Fleetwood Mac.
+The goal of this project was to figure out if Spotify recognizes the differences between the specified Blues, Transitioning and Poprock era. As you could see throughout this project, they do differ in Spotify features. This last graph shows a perfect summary of the message of this project: there are clearly differences between the different eras of Fleetwood Mac but Fleetwood Mac is in all eras still Fleetwood Mac. This analysis could benefit fans of Fleetwood Mac and Fleetwood Mac themselves to see how they have changed over the years but have still stayed the same in some other ways.
 
 
 
